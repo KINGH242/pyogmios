@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "pyogmios"
+version = "0.1.0"
+description = ""
+authors = ["Hareem Adderley <hareem@wavegp.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.31.0"
+pydantic = "^1.10.8"
+aiohttp = "^3.8.4"
+aiodns = "^3.0.0"
+websocket-client = "^1.5.2"
+promise = "^2.3"
+
+
+[tool.poetry.group.dev.dependencies]
+datamodel-code-generator = "^0.19.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

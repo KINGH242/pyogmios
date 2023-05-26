@@ -1,0 +1,4 @@
+disable=C0301
+
+[MASTER]
+extension-pkg-whitelist=pydantic

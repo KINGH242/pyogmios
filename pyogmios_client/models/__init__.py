@@ -16,19 +16,21 @@ from .Digest_Blake2b___Block_Byron_.body import txPayload__
 
 
 class Type(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Version(Enum):
-    field_1_0 = '1.0'
+    field_1_0 = "1.0"
 
 
 class Servicename(Enum):
-    ogmios = 'ogmios'
+    ogmios = "ogmios"
 
 
 class Methodname(Enum):
-    RequestNext = 'RequestNext'
+    RequestNext = "RequestNext"
+    FindIntersect = "FindIntersect"
+    SubmitTx = "SubmitTx"
 
 
 class RequestNext(BaseModel):
@@ -38,94 +40,70 @@ class RequestNext(BaseModel):
     type: Type
     version: Version
     servicename: Servicename
-    methodname: Methodname
+    methodname: Methodname.RequestNext
     args: Optional[Dict[str, Any]] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
-
-
-class Type1(Enum):
-    jsonwsp_response = 'jsonwsp/response'
-
-
-class Type2(Enum):
-    jsonwsp_request = 'jsonwsp/request'
-
-
-class Methodname2(Enum):
-    FindIntersect = 'FindIntersect'
-
-
-class Type3(Enum):
-    jsonwsp_response = 'jsonwsp/response'
-
-
-class Type4(Enum):
-    jsonwsp_request = 'jsonwsp/request'
-
-
-class Methodname4(Enum):
-    SubmitTx = 'SubmitTx'
 
 
 class Args1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    submit: Union[constr(regex=r'^[A-Za-z0-9]+=?=?$'), constr(regex=r'^[0-9a-f]+$')]
+    submit: Union[constr(regex=r"^[A-Za-z0-9]+=?=?$"), constr(regex=r"^[0-9a-f]+$")]
 
 
 class SubmitTx(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    type: Type4
+    type: Type
     version: Version
     servicename: Servicename
-    methodname: Methodname4
+    methodname: Methodname.SubmitTx
     args: Optional[Args1] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
 class Type5(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Type6(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname6(Enum):
-    EvaluateTx = 'EvaluateTx'
+    EvaluateTx = "EvaluateTx"
 
 
 class Type7(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Type8(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname8(Enum):
-    Acquire = 'Acquire'
+    Acquire = "Acquire"
 
 
 class Type9(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Type10(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname10(Enum):
-    Release = 'Release'
+    Release = "Release"
 
 
 class Release(BaseModel):
@@ -139,16 +117,16 @@ class Release(BaseModel):
     args: Optional[Dict[str, Any]] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
 class Type11(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Result(Enum):
-    Released = 'Released'
+    Released = "Released"
 
 
 class ReleaseResponse(BaseModel):
@@ -167,11 +145,11 @@ class ReleaseResponse(BaseModel):
 
 
 class Type12(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname12(Enum):
-    AwaitAcquire = 'AwaitAcquire'
+    AwaitAcquire = "AwaitAcquire"
 
 
 class AwaitAcquire(BaseModel):
@@ -185,24 +163,24 @@ class AwaitAcquire(BaseModel):
     args: Optional[Dict[str, Any]] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
 class Type13(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Type14(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname14(Enum):
-    NextTx = 'NextTx'
+    NextTx = "NextTx"
 
 
 class Fields(Enum):
-    all = 'all'
+    all = "all"
 
 
 class Args4(BaseModel):
@@ -223,24 +201,24 @@ class NextTx(BaseModel):
     args: Optional[Args4] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
 class Type15(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Type16(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname16(Enum):
-    HasTx = 'HasTx'
+    HasTx = "HasTx"
 
 
 class Type17(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class HasTxResponse(BaseModel):
@@ -259,11 +237,11 @@ class HasTxResponse(BaseModel):
 
 
 class Type18(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname18(Enum):
-    SizeAndCapacity = 'SizeAndCapacity'
+    SizeAndCapacity = "SizeAndCapacity"
 
 
 class SizeAndCapacity(BaseModel):
@@ -277,20 +255,20 @@ class SizeAndCapacity(BaseModel):
     args: Optional[Dict[str, Any]] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
 class Type19(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Type20(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname20(Enum):
-    ReleaseMempool = 'ReleaseMempool'
+    ReleaseMempool = "ReleaseMempool"
 
 
 class ReleaseMempool(BaseModel):
@@ -304,12 +282,12 @@ class ReleaseMempool(BaseModel):
     args: Optional[Dict[str, Any]] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
 class Type21(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class ReleaseMempoolResponse(BaseModel):
@@ -328,49 +306,49 @@ class ReleaseMempoolResponse(BaseModel):
 
 
 class Type22(Enum):
-    jsonwsp_request = 'jsonwsp/request'
+    jsonwsp_request = "jsonwsp/request"
 
 
 class Methodname22(Enum):
-    Query = 'Query'
+    Query = "Query"
 
 
 class QueryEnum(Enum):
-    eraStart = 'eraStart'
+    eraStart = "eraStart"
 
 
 class QueryEnum1(Enum):
-    eraSummaries = 'eraSummaries'
+    eraSummaries = "eraSummaries"
 
 
 class QueryEnum2(Enum):
-    ledgerTip = 'ledgerTip'
+    ledgerTip = "ledgerTip"
 
 
 class QueryEnum3(Enum):
-    currentEpoch = 'currentEpoch'
+    currentEpoch = "currentEpoch"
 
 
 class QueryEnum4(Enum):
-    currentProtocolParameters = 'currentProtocolParameters'
+    currentProtocolParameters = "currentProtocolParameters"
 
 
 class QueryEnum5(Enum):
-    proposedProtocolParameters = 'proposedProtocolParameters'
+    proposedProtocolParameters = "proposedProtocolParameters"
 
 
 class QueryEnum6(Enum):
-    stakeDistribution = 'stakeDistribution'
+    stakeDistribution = "stakeDistribution"
 
 
 class QueryEnum7(Enum):
-    utxo = 'utxo'
+    utxo = "utxo"
 
 
 class GenesisConfig(Enum):
-    byron = 'byron'
-    shelley = 'shelley'
-    alonzo = 'alonzo'
+    byron = "byron"
+    shelley = "shelley"
+    alonzo = "alonzo"
 
 
 class QueryItem4(BaseModel):
@@ -381,45 +359,45 @@ class QueryItem4(BaseModel):
 
 
 class QueryEnum8(Enum):
-    rewardsProvenance = 'rewardsProvenance'
+    rewardsProvenance = "rewardsProvenance"
 
 
 class QueryEnum9(Enum):
-    rewardsProvenance_ = 'rewardsProvenance\''
+    rewardsProvenance_ = "rewardsProvenance'"
 
 
 class QueryEnum10(Enum):
-    poolsRanking = 'poolsRanking'
+    poolsRanking = "poolsRanking"
 
 
 class QueryEnum11(Enum):
-    poolIds = 'poolIds'
+    poolIds = "poolIds"
 
 
 class QueryEnum12(Enum):
-    chainTip = 'chainTip'
+    chainTip = "chainTip"
 
 
 class QueryEnum13(Enum):
-    blockHeight = 'blockHeight'
+    blockHeight = "blockHeight"
 
 
 class QueryEnum14(Enum):
-    systemStart = 'systemStart'
+    systemStart = "systemStart"
 
 
 class Type23(Enum):
-    jsonwsp_response = 'jsonwsp/response'
+    jsonwsp_response = "jsonwsp/response"
 
 
 class Type42(Enum):
-    jsonwsp_fault = 'jsonwsp/fault'
+    jsonwsp_fault = "jsonwsp/fault"
 
 
 class Code(Enum):
-    incompatible = 'incompatible'
-    server = 'server'
-    client = 'client'
+    incompatible = "incompatible"
+    server = "server"
+    client = "client"
 
 
 class Fault1(BaseModel):
@@ -427,10 +405,10 @@ class Fault1(BaseModel):
         extra = Extra.forbid
 
     code: Code = Field(
-        ..., description='An error code telling about the nature of the fault.'
+        ..., description="An error code telling about the nature of the fault."
     )
     string: str = Field(
-        ..., description='A descriptive error message giving hints about the fault.'
+        ..., description="A descriptive error message giving hints about the fault."
     )
 
 
@@ -445,22 +423,22 @@ class Fault(BaseModel):
 
 
 class InputSource(Enum):
-    inputs = 'inputs'
-    collaterals = 'collaterals'
+    inputs = "inputs"
+    collaterals = "collaterals"
 
 
 class AcquireFailureDetails(Enum):
-    pointTooOld = 'pointTooOld'
-    pointNotOnChain = 'pointNotOnChain'
+    pointTooOld = "pointTooOld"
+    pointNotOnChain = "pointNotOnChain"
 
 
 class Address(BaseModel):
-    __root__: constr(regex=r'[1-9A-HJ-NP-Za-km-z]*') = Field(
+    __root__: constr(regex=r"[1-9A-HJ-NP-Za-km-z]*") = Field(
         ...,
-        description='A Cardano address (either legacy format or new format).',
+        description="A Cardano address (either legacy format or new format).",
         examples=[
-            'addr1q9d34spgg2kdy47n82e7x9pdd6vql6d2engxmpj20jmhuc2047yqd4xnh7u6u5jp4t0q3fkxzckph4tgnzvamlu7k5psuahzcp',
-            'DdzFFzCqrht8mbSTZHqpM2u4HeND2mdspsaBhdQ1BowPJBMzbDeBMeKgqdoKqo1D4sdPusEdZJVrFJRBBxX1jUEofNDYCJSZLg8MkyCE',
+            "addr1q9d34spgg2kdy47n82e7x9pdd6vql6d2engxmpj20jmhuc2047yqd4xnh7u6u5jp4t0q3fkxzckph4tgnzvamlu7k5psuahzcp",
+            "DdzFFzCqrht8mbSTZHqpM2u4HeND2mdspsaBhdQ1BowPJBMzbDeBMeKgqdoKqo1D4sdPusEdZJVrFJRBBxX1jUEofNDYCJSZLg8MkyCE",
         ],
     )
 
@@ -468,13 +446,13 @@ class Address(BaseModel):
 class AddressAttributes(BaseModel):
     __root__: str = Field(
         ...,
-        description='Extra attributes carried by Byron addresses (network magic and/or HD payload).',
+        description="Extra attributes carried by Byron addresses (network magic and/or HD payload).",
     )
 
 
 class AssetQuantity(BaseModel):
     __root__: int = Field(
-        ..., description='A number of asset, can be negative went burning assets.'
+        ..., description="A number of asset, can be negative went burning assets."
     )
 
 
@@ -482,7 +460,7 @@ class DigestBlake2bAuxiliaryDataBody(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of an 'AuxiliaryDataBody', serialised as CBOR.",
-        examples=['c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d'],
+        examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
@@ -504,26 +482,26 @@ class MetadatumItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    bytes: constr(regex=r'^[0-9a-f]*$')
+    bytes: constr(regex=r"^[0-9a-f]*$")
 
 
 class TxId(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
-        ..., description='A Blake2b 32-byte digest of a transaction body, CBOR-encoded.'
+        ..., description="A Blake2b 32-byte digest of a transaction body, CBOR-encoded."
     )
 
 
 class Lovelace(BaseModel):
     __root__: int = Field(
-        ..., description='A number of lovelace, possibly large when summed up.'
+        ..., description="A number of lovelace, possibly large when summed up."
     )
 
 
 class DigestBlake2bCredential(BaseModel):
     __root__: constr(min_length=56, max_length=56) = Field(
         ...,
-        description='A Blake2b 28-byte digest of a verification key or a script.',
-        examples=['90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3'],
+        description="A Blake2b 28-byte digest of a verification key or a script.",
+        examples=["90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3"],
     )
 
 
@@ -533,12 +511,12 @@ class Withdrawals(BaseModel):
 
 class BlockNo(BaseModel):
     __root__: conint(ge=0, le=18446744073709552000) = Field(
-        ..., description='A block number, the i-th block to be minted is number i.'
+        ..., description="A block number, the i-th block to be minted is number i."
     )
 
 
 class Origin(Enum):
-    origin = 'origin'
+    origin = "origin"
 
 
 class UInt32(BaseModel):
@@ -547,27 +525,27 @@ class UInt32(BaseModel):
 
 class Epoch(BaseModel):
     __root__: conint(ge=0, le=18446744073709552000) = Field(
-        ..., description='An epoch number or length.'
+        ..., description="An epoch number or length."
     )
 
 
 class BlockSize(BaseModel):
     __root__: conint(ge=0, le=18446744073709552000) = Field(
-        ..., description='The size of the block in bytes.'
+        ..., description="The size of the block in bytes."
     )
 
 
 class Signature(BaseModel):
     __root__: str = Field(
         ...,
-        description='A signature coming from an Ed25519 or Ed25519-BIP32 signing key.',
+        description="A signature coming from an Ed25519 or Ed25519-BIP32 signing key.",
     )
 
 
 class RelativeTime(BaseModel):
     __root__: confloat(ge=0.0) = Field(
         ...,
-        description='A time in seconds relative to another one (typically, system start or era start). Starting from v5.5.4, this can be a floating number. Before v5.5.4, the floating value would be rounded to the nearest second.',
+        description="A time in seconds relative to another one (typically, system start or era start). Starting from v5.5.4, this can be a floating number. Before v5.5.4, the floating value would be rounded to the nearest second.",
     )
 
 
@@ -577,7 +555,7 @@ class VrfProof(BaseModel):
 
 class ChainCode(BaseModel):
     __root__: str = Field(
-        ..., description='An Ed25519-BIP32 chain-code for key deriviation.'
+        ..., description="An Ed25519-BIP32 chain-code for key deriviation."
     )
 
 
@@ -590,12 +568,12 @@ class Datum(BaseModel):
 
 
 class PoolId(BaseModel):
-    __root__: constr(regex=r'^pool1[0-9a-z]*$') = Field(
+    __root__: constr(regex=r"^pool1[0-9a-z]*$") = Field(
         ...,
         description="A Blake2b 32-byte digest of a pool's verification key.",
         examples=[
-            'pool1qqqqpanw9zc0rzh0yp247nzf2s35uvnsm7aaesfl2nnejaev0uc',
-            'pool1qqqqqdk4zhsjuxxd8jyvwncf5eucfskz0xjjj64fdmlgj735lr9',
+            "pool1qqqqpanw9zc0rzh0yp247nzf2s35uvnsm7aaesfl2nnejaev0uc",
+            "pool1qqqqqdk4zhsjuxxd8jyvwncf5eucfskz0xjjj64fdmlgj735lr9",
         ],
     )
 
@@ -603,8 +581,8 @@ class PoolId(BaseModel):
 class DigestBlake2bDatum(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
         ...,
-        description='A Blake2b 32-byte digest of a serialized datum, CBOR-encoded.',
-        examples=['c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d'],
+        description="A Blake2b 32-byte digest of a serialized datum, CBOR-encoded.",
+        examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
@@ -612,65 +590,65 @@ class DigestBlake2bMerkleRoot(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a Merkle tree (or all block's transactions) root hash.",
-        examples=['c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d'],
+        examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
 class DigestBlake2bNonce(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
         ...,
-        description='A Blake2b 32-byte digest of some arbitrary to make a nonce.',
-        examples=['c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d'],
+        description="A Blake2b 32-byte digest of some arbitrary to make a nonce.",
+        examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
 class DigestBlake2bPoolMetadata(BaseModel):
     __root__: str = Field(
         ...,
-        description='A Blake2b 32-byte digest of stake pool (canonical) JSON metadata.',
-        examples=['c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d'],
+        description="A Blake2b 32-byte digest of stake pool (canonical) JSON metadata.",
+        examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
 class DigestBlake2bScript(BaseModel):
     __root__: constr(min_length=56, max_length=56) = Field(
         ...,
-        description='A Blake2b 32-byte digest of a phase-1 or phase-2 script, CBOR-encoded.',
-        examples=['90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3'],
+        description="A Blake2b 32-byte digest of a phase-1 or phase-2 script, CBOR-encoded.",
+        examples=["90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3"],
     )
 
 
 class DigestBlake2bScriptIntegrity(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
         ...,
-        description='A Blake2b 32-byte digest of a script-integrity hash (i.e redeemers, datums and cost model, CBOR-encoded).',
-        examples=['c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d'],
+        description="A Blake2b 32-byte digest of a script-integrity hash (i.e redeemers, datums and cost model, CBOR-encoded).",
+        examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
 class DigestBlake2bVerificationKey(BaseModel):
     __root__: constr(min_length=56, max_length=56) = Field(
         ...,
-        description='A Blake2b 28-byte digest of an Ed25519 verification key.',
-        examples=['90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3'],
+        description="A Blake2b 28-byte digest of an Ed25519 verification key.",
+        examples=["90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3"],
     )
 
 
 class DigestBlake2bVrfVerificationKey(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
         ...,
-        description='A Blake2b 32-byte digest of a VRF verification key.',
-        examples=['c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d'],
+        description="A Blake2b 32-byte digest of a VRF verification key.",
+        examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
 class Era(Enum):
-    Byron = 'Byron'
-    Shelley = 'Shelley'
-    Allegra = 'Allegra'
-    Mary = 'Mary'
-    Alonzo = 'Alonzo'
-    Babbage = 'Babbage'
+    Byron = "Byron"
+    Shelley = "Shelley"
+    Allegra = "Allegra"
+    Mary = "Mary"
+    Alonzo = "Alonzo"
+    Babbage = "Babbage"
 
 
 class EraMismatch1(BaseModel):
@@ -691,7 +669,7 @@ class EraMismatch(BaseModel):
 class SlotLength(BaseModel):
     __root__: float = Field(
         ...,
-        description='A slot length, in seconds. Starting from v5.5.4, this can be a floating number. Before v5.5.4, the floating value would be rounded to the nearest second.',
+        description="A slot length, in seconds. Starting from v5.5.4, this can be a floating number. Before v5.5.4, the floating value would be rounded to the nearest second.",
     )
 
 
@@ -703,10 +681,10 @@ class SubmitTxErrorExtraRedeemers(BaseModel):
 
 
 class IncompatibleEra(Enum):
-    Byron = 'Byron'
-    Shelley = 'Shelley'
-    Allegra = 'Allegra'
-    Mary = 'Mary'
+    Byron = "Byron"
+    Shelley = "Shelley"
+    Allegra = "Allegra"
+    Mary = "Mary"
 
 
 class EvaluationFailureIncompatibleEra(BaseModel):
@@ -714,7 +692,7 @@ class EvaluationFailureIncompatibleEra(BaseModel):
         extra = Extra.forbid
 
     IncompatibleEra: IncompatibleEra = Field(
-        ..., description='The era in which the transaction has been identified.'
+        ..., description="The era in which the transaction has been identified."
     )
 
 
@@ -758,7 +736,7 @@ class UtcTime(BaseModel):
 class NetworkMagic(BaseModel):
     __root__: conint(ge=0, le=4294967296) = Field(
         ...,
-        description='A magic number for telling networks apart. (e.g. 764824073)',
+        description="A magic number for telling networks apart. (e.g. 764824073)",
         examples=[764824073],
     )
 
@@ -784,22 +762,22 @@ class Metadatum1(BaseModel):
 
 
 class Ratio(BaseModel):
-    __root__: constr(regex=r'^-?[0-9]+/[0-9]+$') = Field(
+    __root__: constr(regex=r"^-?[0-9]+/[0-9]+$") = Field(
         ...,
-        description='A ratio of two integers, to express exact fractions.',
-        examples=['2/3', '7/8'],
+        description="A ratio of two integers, to express exact fractions.",
+        examples=["2/3", "7/8"],
     )
 
 
 class GenesisVerificationKey(BaseModel):
     __root__: constr(min_length=128, max_length=128) = Field(
         ...,
-        description='An Ed25519-BIP32 Byron genesis delegate verification key with chain-code.',
+        description="An Ed25519-BIP32 Byron genesis delegate verification key with chain-code.",
     )
 
 
 class Type43(Enum):
-    address = 'address'
+    address = "address"
 
 
 class InvalidEntityItem(BaseModel):
@@ -811,7 +789,7 @@ class InvalidEntityItem(BaseModel):
 
 
 class Type44(Enum):
-    poolRegistration = 'poolRegistration'
+    poolRegistration = "poolRegistration"
 
 
 class InvalidEntityItem1(BaseModel):
@@ -823,37 +801,37 @@ class InvalidEntityItem1(BaseModel):
 
 
 class Type45(Enum):
-    rewardAccount = 'rewardAccount'
+    rewardAccount = "rewardAccount"
 
 
 class RewardAccount(BaseModel):
-    __root__: constr(regex=r'^stake(_test)?1[0-9a-z]+$') = Field(
+    __root__: constr(regex=r"^stake(_test)?1[0-9a-z]+$") = Field(
         ...,
         description="A reward account, also known as 'stake address'.",
-        examples=['stake1ux7pt9adw8z46tgqn2f8fvurrhk325gcm4mf75mkmmxpx6gae9mzv'],
+        examples=["stake1ux7pt9adw8z46tgqn2f8fvurrhk325gcm4mf75mkmmxpx6gae9mzv"],
     )
 
 
 class IssuerVrfVerificationKey(BaseModel):
-    __root__: str = Field(..., description='A key identifying a block issuer.')
+    __root__: str = Field(..., description="A key identifying a block issuer.")
 
 
 class IssuerSignature(BaseModel):
     __root__: str = Field(
         ...,
-        description='Signature proving a block was issued by a given issuer VRF key.',
+        description="Signature proving a block was issued by a given issuer VRF key.",
     )
 
 
 class Language(Enum):
-    plutus_v1 = 'plutus:v1'
-    plutus_v2 = 'plutus:v2'
+    plutus_v1 = "plutus:v1"
+    plutus_v2 = "plutus:v2"
 
 
 class LovelaceDelta(BaseModel):
     __root__: conint(ge=-9223372036854776000, le=9223372036854776000) = Field(
         ...,
-        description='An amount, possibly negative, in Lovelace (1e6 Lovelace = 1 Ada).',
+        description="An amount, possibly negative, in Lovelace (1e6 Lovelace = 1 Ada).",
     )
 
 
@@ -871,12 +849,12 @@ class MempoolSizeAndCapacity(BaseModel):
 
 
 class Network(Enum):
-    mainnet = 'mainnet'
-    testnet = 'testnet'
+    mainnet = "mainnet"
+    testnet = "testnet"
 
 
 class NonceEnum(Enum):
-    neutral = 'neutral'
+    neutral = "neutral"
 
 
 class Nonce(BaseModel):
@@ -903,7 +881,7 @@ class OpCert(BaseModel):
 
 class Slot(BaseModel):
     __root__: conint(ge=0, le=18446744073709552000) = Field(
-        ..., description='An absolute slot number.'
+        ..., description="An absolute slot number."
     )
 
 
@@ -965,15 +943,15 @@ class ProtocolVersion(BaseModel):
 
 
 class QueryUnavailableInCurrentEra(Enum):
-    QueryUnavailableInCurrentEra = 'QueryUnavailableInCurrentEra'
+    QueryUnavailableInCurrentEra = "QueryUnavailableInCurrentEra"
 
 
 class RedeemerData(BaseModel):
-    __root__: str = Field(..., description='Plutus data, CBOR-serialised.')
+    __root__: str = Field(..., description="Plutus data, CBOR-serialised.")
 
 
 class RedeemerPointer(BaseModel):
-    __root__: constr(regex=r'^(spend|mint|certificate|withdrawal):[0-9]+$')
+    __root__: constr(regex=r"^(spend|mint|certificate|withdrawal):[0-9]+$")
 
 
 class RelayItem(BaseModel):
@@ -1021,17 +999,17 @@ class RewardInfoPool(BaseModel):
     )
     approximatePerformance: confloat(ge=0.0) = Field(
         ...,
-        description='Number of blocks produced divided by expected number of blocks (based on stake and epoch progress). Can be larger than 1.0 for pools that get lucky.',
+        description="Number of blocks produced divided by expected number of blocks (based on stake and epoch progress). Can be larger than 1.0 for pools that get lucky.",
     )
     poolParameters: PoolParameters1 = Field(
         ...,
-        description='Some of the pool parameters relevant for the reward calculation.',
+        description="Some of the pool parameters relevant for the reward calculation.",
     )
 
 
 class RewardPot(Enum):
-    reserves = 'reserves'
-    treasury = 'treasury'
+    reserves = "reserves"
+    treasury = "treasury"
 
 
 class RewardsProvenance(BaseModel):
@@ -1039,18 +1017,18 @@ class RewardsProvenance(BaseModel):
         extra = Extra.forbid
 
     desiredNumberOfPools: conint(ge=0, le=18446744073709552000) = Field(
-        ..., description='Desired number of stake pools.'
+        ..., description="Desired number of stake pools."
     )
-    poolInfluence: constr(regex=r'^-?[0-9]+/[0-9]+$') = Field(
+    poolInfluence: constr(regex=r"^-?[0-9]+/[0-9]+$") = Field(
         ...,
         description="Influence of the pool owner's pledge on rewards, as a ratio of two integers.",
-        examples=['2/3', '7/8'],
+        examples=["2/3", "7/8"],
     )
     totalRewards: int = Field(
-        ..., description='Total rewards available for the given epoch.'
+        ..., description="Total rewards available for the given epoch."
     )
     activeStake: int = Field(
-        ..., description='The total amount of staked Lovelace during this epoch.'
+        ..., description="The total amount of staked Lovelace during this epoch."
     )
     pools: Dict[str, RewardInfoPool]
 
@@ -1058,7 +1036,7 @@ class RewardsProvenance(BaseModel):
 class SafeZone(BaseModel):
     __root__: conint(ge=0, le=18446744073709552000) = Field(
         ...,
-        description='Number of slots from the tip of the ledger in which it is guaranteed that no hard fork can take place. This should be (at least) the number of slots in which we are guaranteed to have k blocks.',
+        description="Number of slots from the tip of the ledger in which it is guaranteed that no hard fork can take place. This should be (at least) the number of slots in which we are guaranteed to have k blocks.",
     )
 
 
@@ -1079,7 +1057,7 @@ class ScriptNativeItem3(BaseModel):
 class ScriptPlutus(BaseModel):
     __root__: str = Field(
         ...,
-        description='A phase-2 Plutus script; or said differently, a serialized Plutus-core program.',
+        description="A phase-2 Plutus script; or said differently, a serialized Plutus-core program.",
     )
 
 
@@ -1152,24 +1130,24 @@ class SoftForkRule(BaseModel):
 
 
 class StakeAddress(BaseModel):
-    __root__: constr(regex=r'^(stake|stake_test)1[0-9a-z]*$') = Field(
+    __root__: constr(regex=r"^(stake|stake_test)1[0-9a-z]*$") = Field(
         ...,
-        description='A stake address (a.k.a reward account)',
-        examples=['stake179kzq4qulejydh045yzxwk4ksx780khkl4gdve9kzwd9vjcek9u8h'],
+        description="A stake address (a.k.a reward account)",
+        examples=["stake179kzq4qulejydh045yzxwk4ksx780khkl4gdve9kzwd9vjcek9u8h"],
     )
 
 
 class StakeCredential(BaseModel):
     __root__: Union[
         DigestBlake2bCredential,
-        constr(regex=r'^(stake_vkh|script)1[0-9a-z]*$'),
+        constr(regex=r"^(stake_vkh|script)1[0-9a-z]*$"),
         StakeAddress,
     ]
 
 
 class VerificationKey(BaseModel):
     __root__: constr(min_length=64, max_length=64) = Field(
-        ..., description='An Ed25519 verification key.'
+        ..., description="An Ed25519 verification key."
     )
 
 
@@ -1527,8 +1505,8 @@ class SubmitTxErrorNonGenesisVoters(BaseModel):
 
 
 class VotingPeriod(Enum):
-    voteForThisEpoch = 'voteForThisEpoch'
-    voteForNextEpoch = 'voteForNextEpoch'
+    voteForThisEpoch = "voteForThisEpoch"
+    voteForNextEpoch = "voteForNextEpoch"
 
 
 class SubmitTxErrorProtocolVersionCannotFollow(BaseModel):
@@ -1661,7 +1639,7 @@ class CollectError3(BaseModel):
 
     badTranslation: str = Field(
         ...,
-        description='An (hopefully) informative error about the transaction execution failure.',
+        description="An (hopefully) informative error about the transaction execution failure.",
     )
 
 
@@ -1829,7 +1807,7 @@ class AwaitAcquireResponse(BaseModel):
     version: Version
     servicename: Servicename
     methodname: Methodname12
-    result: Result1 = Field(..., title='AwaitAcquired')
+    result: Result1 = Field(..., title="AwaitAcquired")
     reflection: Optional[Any] = Field(
         None,
         description="Any value that was set by a client request in the 'mirror' field.",
@@ -1854,7 +1832,7 @@ class HasTx(BaseModel):
     args: Optional[Args5] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
@@ -1898,7 +1876,7 @@ class QueryItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    poolParameters: List[Union[PoolId, constr(regex=r'^[0-9a-f]+$')]]
+    poolParameters: List[Union[PoolId, constr(regex=r"^[0-9a-f]+$")]]
 
 
 class QueryResponseCurrentEpoch(BaseModel):
@@ -2243,7 +2221,7 @@ class IndividualPoolRewardsProvenance(BaseModel):
         extra = Extra.forbid
 
     totalMintedBlocks: UInt64 = Field(
-        ..., description='The number of blocks the pool produced.'
+        ..., description="The number of blocks the pool produced."
     )
     totalStakeShare: Ratio = Field(
         ..., description="The stake pool's stake share (portion of the total stake)."
@@ -2261,17 +2239,17 @@ class IndividualPoolRewardsProvenance(BaseModel):
         ..., description="The stake pool's pledge ratio (over its total stake)."
     )
     maxRewards: Lovelace = Field(
-        ..., description='The maximum number of Lovelace this stake pool can earn.'
+        ..., description="The maximum number of Lovelace this stake pool can earn."
     )
     apparentPerformance: Ratio = Field(
         ...,
         description="The stake pool's apparent performance according to Section 5.5.2 of the Shelley Design Spec.",
     )
     totalRewards: Lovelace = Field(
-        ..., description='The total Lovelace earned by the stake pool.'
+        ..., description="The total Lovelace earned by the stake pool."
     )
     leaderRewards: Lovelace = Field(
-        ..., description='The total Lovelace earned by the stake pool leader.'
+        ..., description="The total Lovelace earned by the stake pool leader."
     )
 
 
@@ -2358,18 +2336,18 @@ class RewardsProvenanceModel(BaseModel):
     decentralizationParameter: Ratio
     maxLovelaceSupply: Lovelace
     mintedBlocks: Dict[str, UInt64] = Field(
-        ..., description='Number of blocks minted by each pool.'
+        ..., description="Number of blocks minted by each pool."
     )
     totalMintedBlocks: Int64 = Field(
-        ..., description='The total number of blocks minted during the given epoch.'
+        ..., description="The total number of blocks minted during the given epoch."
     )
     totalExpectedBlocks: Int64 = Field(
         ...,
-        description='The number of blocks expected to be produced during the given epoch.',
+        description="The number of blocks expected to be produced during the given epoch.",
     )
     incentive: Lovelace = Field(
         ...,
-        description='The maximum amount of Lovelace which can be removed from the reserves to be given out as rewards for the given epoch.',
+        description="The maximum amount of Lovelace which can be removed from the reserves to be given out as rewards for the given epoch.",
     )
     rewardsGap: Lovelace = Field(
         ...,
@@ -2385,11 +2363,11 @@ class RewardsProvenanceModel(BaseModel):
     )
     treasuryTax: Lovelace = Field(
         ...,
-        description='The amount of Lovelace taken for the treasury for the given epoch.',
+        description="The amount of Lovelace taken for the treasury for the given epoch.",
     )
     activeStake: Lovelace = Field(
         ...,
-        description='The amount of Lovelace that is delegated during the given epoch.',
+        description="The amount of Lovelace that is delegated during the given epoch.",
     )
     pools: Dict[str, IndividualPoolRewardsProvenance]
 
@@ -2398,14 +2376,14 @@ class ScriptItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    plutus_v1: ScriptPlutus = Field(..., alias='plutus:v1')
+    plutus_v1: ScriptPlutus = Field(..., alias="plutus:v1")
 
 
 class ScriptItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    plutus_v2: ScriptPlutus = Field(..., alias='plutus:v2')
+    plutus_v2: ScriptPlutus = Field(..., alias="plutus:v2")
 
 
 class ScriptFailureUnknownInputReferencedByRedeemer(BaseModel):
@@ -2610,14 +2588,14 @@ class FindIntersect(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    type: Type2
+    type: Type
     version: Version
     servicename: Servicename
-    methodname: Methodname2
+    methodname: Methodname.FindIntersect
     args: Optional[Args] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
@@ -2640,10 +2618,10 @@ class FindIntersectResponse(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    type: Type3
+    type: Type
     version: Version
     servicename: Servicename
-    methodname: Methodname2
+    methodname: Methodname.FindIntersect
     result: Union[ResultItem2, ResultItem3] = Field(
         ...,
         description="Intersection found if any, alongside the cardano-node's current tip.",
@@ -2672,7 +2650,7 @@ class Acquire(BaseModel):
     args: Optional[Args3] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
@@ -2752,7 +2730,7 @@ class Query(BaseModel):
     args: Optional[Args6] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
@@ -2984,7 +2962,7 @@ class ScriptFailure(BaseModel):
             ScriptFailureNoCostModelForLanguage,
         ]
     ] = Field(
-        ..., description='Errors which may occur when evaluating an on-chain script.'
+        ..., description="Errors which may occur when evaluating an on-chain script."
     )
 
 
@@ -3236,8 +3214,8 @@ class GenesisShelley(BaseModel):
     updateQuorum: UInt64
     maxLovelaceSupply: UInt64
     protocolParameters: ProtocolParametersShelley
-    initialDelegates: Dict[str, GenesisDelegate] = Field(..., title='InitialDelegates')
-    initialFunds: Dict[str, Lovelace] = Field(..., title='InitialFunds')
+    initialDelegates: Dict[str, GenesisDelegate] = Field(..., title="InitialDelegates")
+    initialFunds: Dict[str, Lovelace] = Field(..., title="InitialFunds")
     initialPools: GenesisPools
 
 
@@ -3309,7 +3287,7 @@ class RequestNextResponse(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    type: Type1
+    type: Type
     version: Version
     servicename: Servicename
     methodname: Methodname
@@ -3334,7 +3312,7 @@ class SubmitTxResponse(BaseModel):
     type: Type5
     version: Version
     servicename: Servicename
-    methodname: Methodname4
+    methodname: Methodname.SubmitTx
     result: Union[ResultItem4, ResultItem5]
     reflection: Optional[Any] = Field(
         None,
@@ -3346,7 +3324,7 @@ class Args2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    evaluate: Union[constr(regex=r'^[A-Za-z0-9]+=?=?$'), constr(regex=r'^[0-9a-f]+$')]
+    evaluate: Union[constr(regex=r"^[A-Za-z0-9]+=?=?$"), constr(regex=r"^[0-9a-f]+$")]
     additionalUtxoSet: Optional[Utxo] = None
 
 
@@ -3361,7 +3339,7 @@ class EvaluateTx(BaseModel):
     args: Optional[Args2] = None
     mirror: Optional[Any] = Field(
         None,
-        description='An arbitrary JSON value that will be mirrored back in the response.',
+        description="An arbitrary JSON value that will be mirrored back in the response.",
     )
 
 
@@ -3404,11 +3382,11 @@ class Ogmios(BaseModel):
     )
     FindIntersect: FindIntersect = Field(
         ...,
-        description='Ask cardano-node to find an intersection between its local chain and the given points.',
+        description="Ask cardano-node to find an intersection between its local chain and the given points.",
     )
     FindIntersectResponse: FindIntersectResponse
     SubmitTx: SubmitTx = Field(
-        ..., description='Submit a signed and serialized transaction to the network.'
+        ..., description="Submit a signed and serialized transaction to the network."
     )
     SubmitTxResponse: SubmitTxResponse
     EvaluateTx: EvaluateTx = Field(
@@ -3417,118 +3395,118 @@ class Ogmios(BaseModel):
     )
     EvaluateTxResponse: EvaluateTxResponse
     Acquire: Acquire = Field(
-        ..., description='Acquire a point on chain from which run queries.'
+        ..., description="Acquire a point on chain from which run queries."
     )
     AcquireResponse: AcquireResponse = Field(
         ..., description="Response to an 'Acquire' request."
     )
     Release: Release = Field(
-        ..., description='Release a point on chain previously acquired.'
+        ..., description="Release a point on chain previously acquired."
     )
     ReleaseResponse: ReleaseResponse = Field(
         ..., description="Response to a 'Release' request."
     )
     AwaitAcquire: AwaitAcquire = Field(
         ...,
-        description='Acquire a mempool snapshot. This is blocking until a new (i.e different) snapshot is available.',
+        description="Acquire a mempool snapshot. This is blocking until a new (i.e different) snapshot is available.",
     )
     AwaitAcquireResponse: AwaitAcquireResponse = Field(
         ..., description="Response to a 'AwaitAcquire' request."
     )
     NextTx: NextTx = Field(
-        ..., description='Request the next transaction from an acquired snapshot.'
+        ..., description="Request the next transaction from an acquired snapshot."
     )
     NextTxResponse: NextTxResponse = Field(
         ..., description="Response to a 'NextTx' request."
     )
     HasTx: HasTx = Field(
         ...,
-        description='Ask whether a given transaction is present in the acquired mempool snapshot.',
+        description="Ask whether a given transaction is present in the acquired mempool snapshot.",
     )
     HasTxResponse: HasTxResponse = Field(
         ..., description="Response to a 'HasTx' request."
     )
     SizeAndCapacity: SizeAndCapacity = Field(
-        ..., description='Get size and capacities of the mempool (acquired snapshot).'
+        ..., description="Get size and capacities of the mempool (acquired snapshot)."
     )
     SizeAndCapacityResponse: SizeAndCapacityResponse = Field(
         ..., description="Response to a 'SizeAndCapacity' request."
     )
     ReleaseMempool: Optional[ReleaseMempool] = Field(
-        None, description='Release a previously acquired mempool snapshot.'
+        None, description="Release a previously acquired mempool snapshot."
     )
     ReleaseMempoolResponse: Optional[ReleaseMempoolResponse] = Field(
         None, description="Response to a 'ReleaseMempool' request."
     )
-    Query: Query = Field(..., description='Query the ledger / node.')
+    Query: Query = Field(..., description="Query the ledger / node.")
     QueryResponse_eraStart_: QueryResponseEraStart = Field(
-        ..., alias='QueryResponse[eraStart]'
+        ..., alias="QueryResponse[eraStart]"
     )
     QueryResponse_eraSummaries_: QueryResponseEraSummaries = Field(
-        ..., alias='QueryResponse[eraSummaries]'
+        ..., alias="QueryResponse[eraSummaries]"
     )
     QueryResponse_ledgerTip_: QueryResponseLedgerTip = Field(
-        ..., alias='QueryResponse[ledgerTip]'
+        ..., alias="QueryResponse[ledgerTip]"
     )
     QueryResponse_currentEpoch_: QueryResponseCurrentEpoch = Field(
-        ..., alias='QueryResponse[currentEpoch]'
+        ..., alias="QueryResponse[currentEpoch]"
     )
     QueryResponse_nonMyopicMemberRewards_: QueryResponseNonMyopicMemberRewards = Field(
-        ..., alias='QueryResponse[nonMyopicMemberRewards]'
+        ..., alias="QueryResponse[nonMyopicMemberRewards]"
     )
     QueryResponse_delegationsAndRewards_: QueryResponseDelegationsAndRewards = Field(
-        ..., alias='QueryResponse[delegationsAndRewards]'
+        ..., alias="QueryResponse[delegationsAndRewards]"
     )
     QueryResponse_currentProtocolParameters_: QueryResponseCurrentProtocolParameters = (
-        Field(..., alias='QueryResponse[currentProtocolParameters]')
+        Field(..., alias="QueryResponse[currentProtocolParameters]")
     )
     QueryResponse_proposedProtocolParameters_: QueryResponseProposedProtocolParameters = Field(
-        ..., alias='QueryResponse[proposedProtocolParameters]'
+        ..., alias="QueryResponse[proposedProtocolParameters]"
     )
     QueryResponse_stakeDistribution_: QueryResponseStakeDistribution = Field(
-        ..., alias='QueryResponse[stakeDistribution]'
+        ..., alias="QueryResponse[stakeDistribution]"
     )
-    QueryResponse_utxo_: QueryResponseUtxo = Field(..., alias='QueryResponse[utxo]')
+    QueryResponse_utxo_: QueryResponseUtxo = Field(..., alias="QueryResponse[utxo]")
     QueryResponse_genesisConfig_: QueryResponseGenesisConfig = Field(
-        ..., alias='QueryResponse[genesisConfig]'
+        ..., alias="QueryResponse[genesisConfig]"
     )
     QueryResponse_rewardsProvenance_: QueryResponseRewardsProvenance = Field(
         ...,
-        alias='QueryResponse[rewardsProvenance]',
+        alias="QueryResponse[rewardsProvenance]",
         description="This query is now deprecated. Use /rewardsProvenance'/ instead.",
     )
     QueryResponse_rewardsProvenance__: QueryResponseRewardsProvenance1 = Field(
         ..., alias="QueryResponse[rewardsProvenance']"
     )
     QueryResponse_poolIds_: QueryResponsePoolIds = Field(
-        ..., alias='QueryResponse[poolIds]'
+        ..., alias="QueryResponse[poolIds]"
     )
     QueryResponse_poolParameters_: QueryResponsePoolParameters = Field(
-        ..., alias='QueryResponse[poolParameters]'
+        ..., alias="QueryResponse[poolParameters]"
     )
     QueryResponse_poolsRanking_: QueryResponsePoolsRanking = Field(
-        ..., alias='QueryResponse[poolsRanking]'
+        ..., alias="QueryResponse[poolsRanking]"
     )
     QueryResponse_blockHeight_: QueryResponseBlockHeight = Field(
-        ..., alias='QueryResponse[blockHeight]'
+        ..., alias="QueryResponse[blockHeight]"
     )
     QueryResponse_chainTip_: QueryResponseChainTip = Field(
-        ..., alias='QueryResponse[chainTip]'
+        ..., alias="QueryResponse[chainTip]"
     )
     QueryResponse_systemStart_: QueryResponseSystemStart = Field(
-        ..., alias='QueryResponse[systemStart]'
+        ..., alias="QueryResponse[systemStart]"
     )
     Fault: Fault = Field(
         ...,
-        description='A fault in the JSON-WSP protocol. This is returned by the server when a request from clients is deemed invalid or, when the server was unable to reply to a well-formed request.',
+        description="A fault in the JSON-WSP protocol. This is returned by the server when a request from clients is deemed invalid or, when the server was unable to reply to a well-formed request.",
         examples=[
             {
-                'type': 'jsonwsp/fault',
-                'version': '1.0',
-                'servicename': 'ogmios',
-                'fault': {
-                    'string': 'Invalid request: invalid query.',
-                    'code': 'client',
+                "type": "jsonwsp/fault",
+                "version": "1.0",
+                "servicename": "ogmios",
+                "fault": {
+                    "string": "Invalid request: invalid query.",
+                    "code": "client",
                 },
             }
         ],
@@ -3582,7 +3560,7 @@ class Block(BaseModel):
         BlockItem, BlockItem1, BlockItem2, BlockItem3, BlockItem4, BlockItem5
     ] = Field(
         ...,
-        description='A Cardano Block, which can take different forms depending on the era.',
+        description="A Cardano Block, which can take different forms depending on the era.",
     )
 
 
@@ -3637,7 +3615,7 @@ class TxBabbage(BaseModel):
     witness: Witness
     metadata: Union[AuxiliaryData, Null]
     raw: str = Field(
-        ..., description='The raw serialized transaction, as found on-chain.'
+        ..., description="The raw serialized transaction, as found on-chain."
     )
 
 
@@ -3710,7 +3688,7 @@ class BlockByronItem(BaseModel):
 class BlockByron(BaseModel):
     __root__: Union[BlockByronItem, BlockByronItem1] = Field(
         ...,
-        description='A block in the Byron era. Most blocks are stanard blocks, but once at the beginning of each era is an additional epoch boundary block (a.k.a. EBB)',
+        description="A block in the Byron era. Most blocks are stanard blocks, but once at the beginning of each era is an additional epoch boundary block (a.k.a. EBB)",
     )
 
 
@@ -3754,7 +3732,7 @@ class TxShelley(BaseModel):
     witness: Witness1
     metadata: Union[AuxiliaryData, Null]
     raw: str = Field(
-        ..., description='The raw serialized transaction, as found on-chain.'
+        ..., description="The raw serialized transaction, as found on-chain."
     )
 
 
@@ -3789,7 +3767,7 @@ class TxAllegra(BaseModel):
     witness: Witness1
     metadata: Union[AuxiliaryData, Null]
     raw: str = Field(
-        ..., description='The raw serialized transaction, as found on-chain.'
+        ..., description="The raw serialized transaction, as found on-chain."
     )
 
 
@@ -3836,7 +3814,7 @@ class TxMary(BaseModel):
     witness: Witness1
     metadata: Union[AuxiliaryData, Null]
     raw: str = Field(
-        ..., description='The raw serialized transaction, as found on-chain.'
+        ..., description="The raw serialized transaction, as found on-chain."
     )
 
 
@@ -3888,7 +3866,7 @@ class TxAlonzo(BaseModel):
     witness: Witness4
     metadata: Union[AuxiliaryData, Null]
     raw: str = Field(
-        ..., description='The raw serialized transaction, as found on-chain.'
+        ..., description="The raw serialized transaction, as found on-chain."
     )
 
 
@@ -3927,13 +3905,13 @@ class ScriptNative(BaseModel):
         ScriptNativeItem3,
     ] = Field(
         ...,
-        description='A phase-1 monetary script. Timelocks constraints are only supported since Allegra.',
+        description="A phase-1 monetary script. Timelocks constraints are only supported since Allegra.",
         examples=[
-            '3c07030e36bfff7cd2f004356ef320f3fe3c07030e7cd2f004356437',
+            "3c07030e36bfff7cd2f004356ef320f3fe3c07030e7cd2f004356437",
             {
-                'all': [
-                    'ec09e5293d384637cd2f004356ef320f3fe3c07030e36bfffe67e2e2',
-                    '3c07030e36bfff7cd2f004356ef320f3fe3c07030e7cd2f004356437',
+                "all": [
+                    "ec09e5293d384637cd2f004356ef320f3fe3c07030e36bfffe67e2e2",
+                    "3c07030e36bfff7cd2f004356ef320f3fe3c07030e7cd2f004356437",
                 ]
             },
         ],
@@ -4063,7 +4041,7 @@ class TxByron(BaseModel):
     body: Body7
     witness: List[TxWitness]
     raw: str = Field(
-        ..., description='The raw serialized transaction, as found on-chain.'
+        ..., description="The raw serialized transaction, as found on-chain."
     )
 
 

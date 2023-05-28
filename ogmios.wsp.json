@@ -3283,7 +3283,7 @@
       "type": "integer",
       "description": "A block number, the i-th block to be minted is number i.",
       "minimum": 0,
-      "maximum": 18446744073709552000
+      "maximum": 18446744073709552999
     },
     "BlockNoOrOrigin": {
       "oneOf": [
@@ -3352,7 +3352,7 @@
       "type": "integer",
       "description": "The size of the block in bytes.",
       "minimum": 0,
-      "maximum": 18446744073709552000
+      "maximum": 18446744073709552999
     },
     "BootstrapWitness": {
       "type": "object",
@@ -4458,8 +4458,8 @@
     },
     "Int64": {
       "type": "integer",
-      "minimum": -9223372036854776000,
-      "maximum": 9223372036854776000
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
     },
     "InvalidEntity": {
       "oneOf": [
@@ -4546,8 +4546,8 @@
     "LovelaceDelta": {
       "type": "integer",
       "description": "An amount, possibly negative, in Lovelace (1e6 Lovelace = 1 Ada).",
-      "minimum": -9223372036854776000,
-      "maximum": 9223372036854776000
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
     },
     "KesVerificationKey": {
       "type": "string",
@@ -5708,7 +5708,7 @@
           "type": "integer",
           "description": "Desired number of stake pools.",
           "minimum": 0,
-          "maximum": 18446744073709552000
+          "maximum": 18446744073709552999
         },
         "poolInfluence": {
           "type": "string",
@@ -5867,7 +5867,7 @@
       "type": "integer",
       "description": "Number of slots from the tip of the ledger in which it is guaranteed that no hard fork can take place. This should be (at least) the number of slots in which we are guaranteed to have k blocks.",
       "minimum": 0,
-      "maximum": 18446744073709552000
+      "maximum": 18446744073709552999
     },
     "Script": {
       "oneOf": [
@@ -8889,7 +8889,7 @@
     "UInt64": {
       "type": "integer",
       "minimum": 0,
-      "maximum": 18446744073709552000
+      "maximum": 18446744073709552999
     },
     "Update[Shelley]": {
       "oneOf": [

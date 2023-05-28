@@ -1,7 +1,7 @@
 from typing import Optional
 
 import aiohttp
-from models.base_model import BaseModel
+from pyogmios_client.models.base_model import BaseModel
 
 from pyogmios_client.exceptions import RequestError
 from pyogmios_client.models.server_health_model import ServerHealth
@@ -29,7 +29,9 @@ class Options(BaseModel):
 
 
 async def get_server_health(options: Options) -> ServerHealth | RequestError:
-    async with aiohttp.ClientSession().get(f"{options.connection.address.http}/health") as response:
+    async with aiohttp.ClientSession().get(
+        f"{options.connection.address.http}/health"
+    ) as response:
         if response.status == 200:
             return ServerHealth(**await response.json())
         else:

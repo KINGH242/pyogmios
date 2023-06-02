@@ -4,10 +4,7 @@ from typing import Optional, Dict, Any
 
 from pydantic import Field
 
-from pyogmios_client.enums.method_name_enum import MethodName
-from pyogmios_client.enums.service_name_enum import ServiceName
-from pyogmios_client.enums.type_enum import Type
-from pyogmios_client.enums.version_enum import Version
+from pyogmios_client.enums import MethodName, ServiceName, Type, Version
 from pyogmios_client.models.base_request_response_model import BaseRequestResponse
 
 
@@ -27,8 +24,8 @@ class Request(BaseRequestResponse):
         return Request(
             type=Type.JSONWSP_REQUEST,
             version=Version.v1_0,
-            service_name=ServiceName.OGMIOS,
-            method_name=method_name,
+            servicename=ServiceName.OGMIOS,
+            methodname=method_name,
             args=args,
             mirror=mirror,
         )

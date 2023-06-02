@@ -1,20 +1,19 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Any, TypedDict
+from typing import Optional, Any, Dict
 
-from pydantic import Field
+from pydantic import Field, Extra
 
-from pyogmios_client.enums.method_name_enum import MethodName
-from pyogmios_client.enums.service_name_enum import ServiceName
-from pyogmios_client.enums.type_enum import Type
-from pyogmios_client.enums.version_enum import Version
+from pyogmios_client.enums import MethodName, ServiceName, Type, Version
+from pyogmios_client.models import BaseModel
 from pyogmios_client.models.base_request_response_model import BaseRequestResponse
 from pyogmios_client.models.result_models import Result
 
 
 class Response(ABC, BaseRequestResponse):
-    result: Result
+    result: Optional[Result]
+    fault: Optional[Dict[str, Any]]
     reflection: Optional[Any] = Field(
         None,
         description="An arbitrary JSON value that will be mirrored back in the response.",
@@ -27,15 +26,22 @@ class Response(ABC, BaseRequestResponse):
         return Response(
             type=Type.JSONWSP_RESPONSE,
             version=Version.v1_0,
-            service_name=ServiceName.OGMIOS,
-            method_name=method_name,
+            servicename=ServiceName.OGMIOS,
+            methodname=method_name,
             result=result,
             reflection=reflection,
         )
 
 
-class QueryResponse(ABC, Response):
-    reflection: Optional[TypedDict("Reflection", {"request_id": str})]
+class QueryResponseReflection(BaseModel):
+    class Config:
+        extra = Extra.allow
+
+    requestId: Optional[str]
+
+
+class QueryResponse(Response, ABC):
+    reflection: Optional[QueryResponseReflection]
 
 
 class FindIntersectResponse(QueryResponse):

@@ -2,7 +2,7 @@ from typing import Optional, TypeVar
 
 from websocket import WebSocketApp
 
-from pyogmios_client.enums.method_name_enum import MethodName
+from pyogmios_client.enums import MethodName
 from pyogmios_client.models.base_model import BaseModel
 from pyogmios_client.models.request_model import Request
 

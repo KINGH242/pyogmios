@@ -29,9 +29,8 @@ class Options(BaseModel):
 
 
 async def get_server_health(options: Options) -> ServerHealth | RequestError:
-    async with aiohttp.ClientSession().get(
-        f"{options.connection.address.http}/health"
-    ) as response:
+    url = f"{options.connection.address.http}/health"
+    async with aiohttp.ClientSession().get(url) as response:
         if response.status == 200:
             return ServerHealth(**await response.json())
         else:

@@ -27,8 +27,8 @@ pylint = "^2.14.5"
 pytest = "^7.1.3"
 pytest-asyncio = "^0.20.3"
 pytest-mock = "^3.8.2"
-pydantic-factories = "^1.17.2"
 ruff = "^0.0.261"
+polyfactory = "^2.2.0"
 
 [build-system]
 requires = ["poetry-core"]

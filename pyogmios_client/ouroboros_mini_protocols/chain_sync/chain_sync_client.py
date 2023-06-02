@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-from typing import List, Optional, Callable, Any
-
-from promise import Promise
+from typing import List, Callable, Coroutine
 
 from pyogmios_client.connection import InteractionContext
-from pyogmios_client.enums.method_name_enum import MethodName
+from pyogmios_client.enums import MethodName
 from pyogmios_client.exceptions import UnknownResultError
-from pyogmios_client.models import RollBackward, RollForward
+from pyogmios_client.models import (
+    RollBackward,
+    RollForward,
+    PointOrOrigin,
+    Any,
+    Point,
+    Origin,
+)
 from pyogmios_client.models.base_model import BaseModel
-from pyogmios_client.models.point_model import PointOrOrigin
 from pyogmios_client.models.response_model import RequestNextResponse
+from pyogmios_client.models.result_models import IntersectionFound
 from pyogmios_client.ouroboros_mini_protocols.chain_sync.find_intersect import (
-    Intersection,
     find_intersect,
     create_point_from_current_tip,
 )
@@ -28,15 +32,15 @@ class Options(BaseModel):
 
 
 class ChainSyncMessageHandlers(BaseModel):
-    roll_backward: Callable[[RollBackward, Callable[[], None]], Promise[None]]
-    roll_forward: Callable[[RollForward, Callable[[], None]], Promise[None]]
+    roll_backward: Callable[[RollBackward, Callable[[], None]], None]
+    roll_forward: Callable[[RollForward, Callable[[], None]], None]
 
 
 class ChainSyncClient(BaseModel):
     context: InteractionContext
-    shutdown: Callable[[], Promise[None]]
+    shutdown: Callable[[], None]
     start_sync: Callable[
-        [Optional[List[PointOrOrigin]], int], Promise[Optional[Intersection]]
+        [list[Point | Origin], int], Coroutine[Any, Any, IntersectionFound]
     ]
 
 
@@ -44,25 +48,24 @@ async def create_chain_sync_client(
     context: InteractionContext,
     message_handlers: ChainSyncMessageHandlers,
     options: Options = None,
-) -> Promise[ChainSyncClient]:
+) -> ChainSyncClient:
     websocket_app = context.socket
 
-    def executor(
-        resolve: Callable[[Any], None], _: Callable[[Exception], None]
-    ) -> None:
+    try:
+
         def message_handler(response: RequestNextResponse) -> None:
-            if response.result.roll_backward:
-                await message_handlers.roll_backward(
+            if response.result.RollBackward:
+                message_handlers.roll_backward(
                     response.result.RollBackward, lambda: request_next(websocket_app)
                 )
-            elif response.result.roll_forward:
-                await message_handlers.roll_forward(
+            elif response.result.RollForward:
+                message_handlers.roll_forward(
                     response.result.RollForward, lambda: request_next(websocket_app)
                 )
             else:
                 raise UnknownResultError(response.result)
 
-        def response_handler(response: RequestNextResponse) -> Promise[None]:
+        def response_handler(response: RequestNextResponse) -> None:
             return (
                 Queue().promise_push(message_handler(response))
                 if options.sequential is True
@@ -71,42 +74,41 @@ async def create_chain_sync_client(
 
         def on_message(message: str) -> None:
             response = RequestNextResponse.parse_raw(message)
-            if response.method_name is MethodName.REQUEST_NEXT:
+            if response.methodname is MethodName.REQUEST_NEXT:
                 try:
-                    await response_handler(response)
-                except Exception as error:
-                    print(error)
+                    response_handler(response)
+                except Exception as err:
+                    print(err)
 
         websocket_app.on_message = on_message
 
-        def shutdown() -> Promise[None]:
-            def shutdown_executor(
-                res: Callable[[Any], None], rej: Callable[[Exception], None]
-            ) -> None:
+        def shutdown() -> None:
+            try:
                 ensure_socket_is_open(websocket_app)
-                websocket_app.on_close = res
                 websocket_app.close()
+            except Exception as error:
+                print(error)
+            else:
+                print("Shutting down Chain Sync Client...")
 
-            return Promise(shutdown_executor)
-
-        def start_sync(
+        async def start_sync(
             points: List[PointOrOrigin], in_flight: int
-        ) -> Promise[Intersection]:
-            def start_sync_executor(
-                res: Callable[[Any], None], rej: Callable[[Exception], None]
-            ) -> None:
+        ) -> IntersectionFound:
+            try:
                 intersection = await find_intersect(
                     context, points or [create_point_from_current_tip(context)]
                 )
                 ensure_socket_is_open(websocket_app)
                 for _ in range(in_flight or 100):
                     request_next(websocket_app)
-                return res(intersection)
+            except Exception as error:
+                print(error)
+            else:
+                return intersection
 
-            return Promise(start_sync_executor)
-
-        return resolve(
-            ChainSyncClient(context=context, shutdown=shutdown, start_sync=start_sync)
+    except Exception:
+        pass
+    else:
+        return ChainSyncClient(
+            context=context, shutdown=shutdown, start_sync=start_sync
         )
-
-    return Promise(executor)

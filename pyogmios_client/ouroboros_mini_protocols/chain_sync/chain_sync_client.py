@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import List, Callable, Coroutine
 
+from websocket import WebSocketApp
+
 from pyogmios_client.connection import InteractionContext
 from pyogmios_client.enums import MethodName
 from pyogmios_client.exceptions import UnknownResultError
@@ -10,12 +12,14 @@ from pyogmios_client.models import (
     RollForward,
     PointOrOrigin,
     Any,
-    Point,
-    Origin,
 )
 from pyogmios_client.models.base_model import BaseModel
-from pyogmios_client.models.response_model import RequestNextResponse
-from pyogmios_client.models.result_models import IntersectionFound
+from pyogmios_client.models.response_model import RequestNextResponse, Response
+from pyogmios_client.models.result_models import (
+    IntersectionFound,
+    RollForwardResult,
+    RollBackwardResult,
+)
 from pyogmios_client.ouroboros_mini_protocols.chain_sync.find_intersect import (
     find_intersect,
     create_point_from_current_tip,
@@ -38,9 +42,9 @@ class ChainSyncMessageHandlers(BaseModel):
 
 class ChainSyncClient(BaseModel):
     context: InteractionContext
-    shutdown: Callable[[], None]
+    shutdown: Callable[[], Coroutine[Any, Any, None]]
     start_sync: Callable[
-        [list[Point | Origin], int], Coroutine[Any, Any, IntersectionFound]
+        [List[PointOrOrigin], int], Coroutine[Any, Any, IntersectionFound]
     ]
 
 
@@ -49,16 +53,27 @@ async def create_chain_sync_client(
     message_handlers: ChainSyncMessageHandlers,
     options: Options = None,
 ) -> ChainSyncClient:
+    """
+    Create a chain sync client.
+    :param context: The interaction context
+    :param message_handlers: The message handlers
+    :param options: The options
+    :return: The chain sync client
+    """
     websocket_app = context.socket
 
     try:
 
         def message_handler(response: RequestNextResponse) -> None:
-            if response.result.RollBackward:
+            """
+            Handle the response.
+            :param response: The response
+            """
+            if isinstance(response.result, RollBackwardResult):
                 message_handlers.roll_backward(
                     response.result.RollBackward, lambda: request_next(websocket_app)
                 )
-            elif response.result.RollForward:
+            elif isinstance(response.result, RollForwardResult):
                 message_handlers.roll_forward(
                     response.result.RollForward, lambda: request_next(websocket_app)
                 )
@@ -66,25 +81,43 @@ async def create_chain_sync_client(
                 raise UnknownResultError(response.result)
 
         def response_handler(response: RequestNextResponse) -> None:
+            """
+            Handle the response.
+            :param response:
+            :return:
+            """
+            if options is None:
+                return message_handler(response)
             return (
                 Queue().promise_push(message_handler(response))
                 if options.sequential is True
                 else message_handler(response)
             )
 
-        def on_message(message: str) -> None:
-            response = RequestNextResponse.parse_raw(message)
+        def on_message(_: WebSocketApp, message: str) -> None:
+            """
+            Handle the message.
+            :param _:
+            :param message:
+            """
+            response = Response.parse_raw(message)
             if response.methodname is MethodName.REQUEST_NEXT:
                 try:
-                    response_handler(response)
+                    response_handler(RequestNextResponse.parse_raw(message))
                 except Exception as err:
                     print(err)
+            elif response.methodname is MethodName.FIND_INTERSECT:
+                request_next(websocket_app)
+            websocket_app.on_message = on_message
 
         websocket_app.on_message = on_message
 
-        def shutdown() -> None:
+        async def shutdown() -> None:
+            """
+            Shutdown the chain sync client.
+            """
             try:
-                ensure_socket_is_open(websocket_app)
+                await ensure_socket_is_open(websocket_app)
                 websocket_app.close()
             except Exception as error:
                 print(error)
@@ -94,11 +127,17 @@ async def create_chain_sync_client(
         async def start_sync(
             points: List[PointOrOrigin], in_flight: int
         ) -> IntersectionFound:
+            """
+            Start the sync.
+            :param points: The points
+            :param in_flight: The in flight
+            :return: The intersection found
+            """
             try:
                 intersection = await find_intersect(
-                    context, points or [create_point_from_current_tip(context)]
+                    context, points or [await create_point_from_current_tip(context)]
                 )
-                ensure_socket_is_open(websocket_app)
+                await ensure_socket_is_open(websocket_app)
                 for _ in range(in_flight or 100):
                     request_next(websocket_app)
             except Exception as error:

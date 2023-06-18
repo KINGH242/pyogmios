@@ -2,9 +2,8 @@ from typing import Optional, TypeVar
 
 from websocket import WebSocketApp
 
-from pyogmios_client.enums import MethodName
 from pyogmios_client.models.base_model import BaseModel
-from pyogmios_client.models.request_model import Request
+from pyogmios_client.models.request_model import RequestNext
 
 T = TypeVar("T")
 
@@ -14,7 +13,10 @@ class Options(BaseModel):
 
 
 def request_next(socket: WebSocketApp, options: Options = None) -> None:
-    request = Request.from_base_request(
-        method_name=MethodName.REQUEST_NEXT, mirror=options.mirror
-    )
+    """
+    Request next.
+    :param socket: The websocket
+    :param options: The options
+    """
+    request = RequestNext.from_base(mirror=options.mirror if options else None)
     socket.send(request.json())

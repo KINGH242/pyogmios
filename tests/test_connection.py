@@ -7,7 +7,7 @@ from pyogmios_client.connection import (
     WebSocketCloseHandler,
     create_interaction_context,
     InteractionContext,
-    Options,
+    InteractionContextOptions,
 )
 from pyogmios_client.server_health import Connection
 from tests.conftest import ConnectionConfigFactory, ServerHealthFactory
@@ -70,7 +70,7 @@ async def test_create_interaction_context_with_config():
     close_handler = MagicMock(spec=WebSocketCloseHandler)
     interaction_context = MagicMock(spec=InteractionContext)
     connection_config = ConnectionConfigFactory.build()
-    options = Options(connection_config=connection_config)
+    options = InteractionContextOptions(connection_config=connection_config)
 
     # Mock the get_server_health function to return a successful server health check
     MagicMock(return_value=interaction_context)

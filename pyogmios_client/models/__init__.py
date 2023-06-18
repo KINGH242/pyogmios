@@ -5,7 +5,7 @@ from enum import Enum
 from types import UnionType
 from typing import Optional, Dict, List, Union
 
-from pydantic import conint, Field, Extra, constr, confloat, AnyUrl
+from pydantic import conint, Field, constr, confloat, AnyUrl
 
 from pyogmios_client.enums import (
     RewardPot,
@@ -15,12 +15,13 @@ from pyogmios_client.enums import (
     Language,
     InvalidEntityType,
     InvalidEntityEntity,
+    IncompatibleEraEnum,
 )
 from pyogmios_client.models.base_model import BaseModel
 
 Slot = int
 
-# Origin = 'origin'
+
 class Origin(BaseModel):
     __root__: str = "origin"
 
@@ -58,6 +59,10 @@ class BlockNo(BaseModel):
     __root__: conint(ge=0, le=18446744073709552999) = Field(
         ..., description="A block number, the i-th block to be minted is number i."
     )
+
+
+class BlockNoOrOrigin(BaseModel):
+    __root__: Union[BlockNo, Origin]
 
 
 class BlockSize(BaseModel):
@@ -128,9 +133,6 @@ Certificate = (
 
 
 class CertifiedVrf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     proof: Optional[VrfProof] = None
     output: Optional[VrfOutput] = None
 
@@ -151,6 +153,18 @@ class CostModels(BaseModel):
 
 class Datum(BaseModel):
     __root__: str
+
+
+class DelegationsAndRewardsByAccounts(BaseModel):
+    __root__: Optional[Dict[str, DelegationsAndRewards]] = None
+
+
+class DelegationsAndRewards(BaseModel):
+    delegate: PoolId
+    rewards: Lovelace
+
+
+DigestBlake2BCredential = str
 
 
 class DigestBlake2bAuxiliaryDataBody(BaseModel):
@@ -272,9 +286,6 @@ class Epoch(BaseModel):
 
 
 class ExUnits(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     memory: UInt64
     steps: UInt64
 
@@ -319,9 +330,6 @@ class LovelaceDelta(BaseModel):
 
 
 class MempoolSizeAndCapacity(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     capacity: UInt32
     currentSize: UInt32
     numberOfTxs: UInt32
@@ -356,9 +364,6 @@ class ProtocolMagicId(BaseModel):
 
 
 class ProtocolVersion(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     major: UInt32
     minor: UInt32
     patch: Optional[UInt32] = None
@@ -375,10 +380,11 @@ class PoolId(BaseModel):
     )
 
 
-class Prices(BaseModel):
-    class Config:
-        extra = Extra.forbid
+class QueryUnavailableInCurrentEra(BaseModel):
+    __root__: str = "QueryUnavailableInCurrentEra"
 
+
+class Prices(BaseModel):
     memory: Ratio
     steps: Ratio
 
@@ -392,9 +398,6 @@ class Ratio(BaseModel):
 
 
 class Redeemer(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     redeemer: RedeemerData
     executionUnits: ExUnits
 
@@ -427,9 +430,6 @@ class RewardAccount(BaseModel):
 
 
 class SoftwareVersion(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     appName: str
     number: UInt32
 
@@ -450,18 +450,12 @@ class Signature(BaseModel):
 
 
 class SoftForkRule(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     initThreshold: NullableRatio
     minThreshold: NullableRatio
     decrementThreshold: NullableRatio
 
 
 class TxFeePolicy(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     coefficient: Ratio
     constant: float
 
@@ -493,9 +487,6 @@ class UtcTime(BaseModel):
 
 
 class Value(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     coins: Lovelace
     assets: Optional[Dict[str, AssetQuantity]] = None
 
@@ -590,15 +581,15 @@ class PoolMetadata(BaseModel):
 
 
 class PoolParameters(BaseModel):
-    owners: List[DigestBlake2bVerificationKey]
+    owners: Optional[List[DigestBlake2bVerificationKey]]
     cost: Lovelace
     margin: Ratio
     pledge: Lovelace
-    vrf: DigestBlake2bVrfVerificationKey
-    metadata: Null | PoolMetadata
-    id: PoolId
-    relays: List[Relay]
-    rewardAccount: RewardAccount
+    vrf: Optional[DigestBlake2bVrfVerificationKey]
+    metadata: Optional[Null | PoolMetadata]
+    id: Optional[PoolId]
+    relays: Optional[List[Relay]]
+    rewardAccount: Optional[RewardAccount]
 
 
 class OpCert(BaseModel):
@@ -623,9 +614,6 @@ Relay = ByAddress | ByName
 
 
 class DlgCertificate(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     epoch: Epoch
     issuerVk: GenesisVerificationKey
     delegateVk: GenesisVerificationKey
@@ -633,9 +621,6 @@ class DlgCertificate(BaseModel):
 
 
 class GenesisByron(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     genesisKeyHashes: List[DigestBlake2bVerificationKey]
     genesisDelegations: Dict[str, DlgCertificate]
     systemStart: UtcTime
@@ -647,9 +632,6 @@ class GenesisByron(BaseModel):
 
 
 class GenesisAlonzo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     coinsPerUtxoWord: UInt64
     collateralPercentage: UInt64
     costModels: CostModels
@@ -660,18 +642,35 @@ class GenesisAlonzo(BaseModel):
     prices: Prices
 
 
-class GenesisPools(BaseModel):
-    class Config:
-        extra = Extra.forbid
+class GenesisDelegate(BaseModel):
+    delegate: DigestBlake2bVerificationKey
+    vrf: DigestBlake2bVrfVerificationKey
 
+
+class GenesisShelley(BaseModel):
+    systemStart: UtcTime
+    networkMagic: NetworkMagic
+    network: Network
+    activeSlotsCoefficient: Ratio
+    securityParameter: UInt64
+    epochLength: Epoch
+    slotsPerKesPeriod: UInt64
+    maxKesEvolutions: UInt64
+    slotLength: SlotLength
+    updateQuorum: UInt64
+    maxLovelaceSupply: UInt64
+    protocolParameters: ProtocolParametersShelley
+    initialDelegates: Dict[str, GenesisDelegate] = Field(..., title="InitialDelegates")
+    initialFunds: Dict[str, Lovelace] = Field(..., title="InitialFunds")
+    initialPools: GenesisPools
+
+
+class GenesisPools(BaseModel):
     pools: Dict[str, PoolParameters]
     delegators: Dict[str, PoolId]
 
 
 class ProtocolParametersAlonzo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     minFeeCoefficient: NullableUInt64
     minFeeConstant: NullableUInt64
     maxBlockBodySize: NullableUInt64
@@ -699,9 +698,6 @@ class ProtocolParametersAlonzo(BaseModel):
 
 
 class ProtocolParametersBabbage(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     minFeeCoefficient: NullableUInt64
     minFeeConstant: NullableUInt64
     maxBlockBodySize: NullableUInt64
@@ -727,9 +723,6 @@ class ProtocolParametersBabbage(BaseModel):
 
 
 class ProtocolParametersByron(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     heavyDlgThreshold: NullableRatio
     maxBlockSize: NullableUInt64
     maxHeaderSize: NullableUInt64
@@ -747,9 +740,6 @@ class ProtocolParametersByron(BaseModel):
 
 
 class ProtocolParametersShelley(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     minFeeCoefficient: NullableUInt64
     minFeeConstant: NullableUInt64
     maxBlockBodySize: NullableUInt64
@@ -861,6 +851,12 @@ class Header(BaseModel):
     vrfInput: CertifiedVrf
 
 
+class Vote(BaseModel):
+    voterVk: VerificationKey
+    proposalId: DigestBlake2bVerificationKey
+    signature: Signature
+
+
 class Mary(BaseModel):
     mary: BlockMary
 
@@ -895,10 +891,15 @@ class StandardBlock(BaseModel):
     body: StandardBlockBody
 
 
+class StandardBlockBodyUpdatePayload(BaseModel):
+    proposal: Optional[Union[Null, UpdateProposalByron]]
+    votes: List[Vote]
+
+
 class StandardBlockBody(BaseModel):
     txPayload: List[TxByron]
     dlgPayload: List[DlgCertificate]
-    updatePayload: UpdatePayload
+    updatePayload: StandardBlockBodyUpdatePayload
 
 
 class StandardBlockHeader(BaseModel):
@@ -1085,6 +1086,19 @@ class UpdateProposalShelley(BaseModel):
     proposal: Dict[str, ProtocolParametersShelley]
 
 
+class UpdateProposalByronBody(BaseModel):
+    protocolVersion: ProtocolVersion
+    softwareVersion: SoftwareVersion
+    metadata: Dict[str, str]
+    parametersUpdate: ProtocolParametersByron
+
+
+class UpdateProposalByron(BaseModel):
+    body: UpdateProposalByronBody
+    issuer: IssuerVrfVerificationKey
+    signature: IssuerSignature
+
+
 class Utxo(BaseModel):
     number: UInt32
     root: DigestBlake2bMerkleRoot
@@ -1102,9 +1116,6 @@ class WitnessVk(BaseModel):
 
 
 class BootstrapWitness(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     signature: Signature
     chainCode: Union[ChainCode, Null]
     addressAttributes: Union[AddressAttributes, Null]
@@ -1112,9 +1123,6 @@ class BootstrapWitness(BaseModel):
 
 
 class Witness(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     signatures: Dict[str, Signature]
     scripts: Optional[Dict[str, Script]]
     bootstrap: Optional[List[BootstrapWitness]]
@@ -1122,186 +1130,118 @@ class Witness(BaseModel):
     redeemers: Optional[Dict[str, Redeemer]]
 
 
-Block = Babbage | Alonzo | Mary | Allegra | Shelley | Byron
+Block = Union[Babbage, Alonzo, Mary, Allegra, Shelley, Byron]
 
-BlockByron = StandardBlock | EpochBoundaryBlock
+BlockByron = Union[StandardBlock, EpochBoundaryBlock]
+
 PointOrOrigin = Union[Point, Origin]
 
 TipOrOrigin = Union[Tip, Origin]
 
-TxWitness = TxWitnessVk | TxRedeemWitness
+TxWitness = Union[TxWitnessVk, TxRedeemWitness]
 
-UpdateAlonzo = Null | UpdateProposalAlonzo
+UpdateAlonzo = Union[Null, UpdateProposalAlonzo]
 
-UpdateBabbage = Null | UpdateProposalBabbage
+UpdateBabbage = Union[Null, UpdateProposalBabbage]
 
-UpdateShelley = Null | UpdateProposalShelley
+UpdateShelley = Union[Null, UpdateProposalShelley]
 
 
 class SubmitTxErrorMissingVkWitnesses(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingVkWitnesses: List[DigestBlake2bVerificationKey]
 
 
 class SubmitTxErrorMissingScriptWitnesses(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingScriptWitnesses: List[DigestBlake2bScript]
 
 
 class SubmitTxErrorScriptWitnessNotValidating(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     scriptWitnessNotValidating: List[DigestBlake2bScript]
 
 
 class SubmitTxErrorInsufficientGenesisSignatures(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     insufficientGenesisSignatures: List[DigestBlake2bVerificationKey]
 
 
 class SubmitTxErrorMissingTxMetadata(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingTxMetadata: DigestBlake2bAuxiliaryDataBody
 
 
 class SubmitTxErrorMissingTxMetadataHash(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingTxMetadataHash: DigestBlake2bAuxiliaryDataBody
 
 
 class TxMetadataHashMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     includedHash: DigestBlake2bAuxiliaryDataBody
     expectedHash: DigestBlake2bAuxiliaryDataBody
 
 
 class SubmitTxErrorTxMetadataHashMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     txMetadataHashMismatch: TxMetadataHashMismatch
 
 
 class ExpiredUtxo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     currentSlot: Slot
     transactionTimeToLive: Slot
 
 
 class SubmitTxErrorExpiredUtxo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     expiredUtxo: ExpiredUtxo
 
 
 class TxTooLarge(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     maximumSize: Int64
     actualSize: Int64
 
 
 class SubmitTxErrorTxTooLarge(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     txTooLarge: TxTooLarge
 
 
 class SubmitTxErrorMissingAtLeastOneInputUtxo(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingAtLeastOneInputUtxo: None
 
 
 class SubmitTxErrorInvalidMetadata(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     invalidMetadata: None
 
 
 class FeeTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     requiredFee: Lovelace
     actualFee: Lovelace
 
 
 class SubmitTxErrorFeeTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     feeTooSmall: FeeTooSmall
 
 
 class SubmitTxErrorAddressAttributesTooLarge(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     addressAttributesTooLarge: List[Address]
 
 
 class SubmitTxErrorTriesToForgeAda(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     triesToForgeAda: None
 
 
 class SubmitTxErrorDelegateNotRegistered(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     delegateNotRegistered: PoolId
 
 
 class SubmitTxErrorUnknownOrIncompleteWithdrawals(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     unknownOrIncompleteWithdrawals: Withdrawals
 
 
 class SubmitTxErrorStakePoolNotRegistered(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     stakePoolNotRegistered: PoolId
 
 
 class WrongRetirementEpoch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     currentEpoch: Epoch
     requestedEpoch: Epoch
     firstUnreachableEpoch: Epoch
 
 
 class SubmitTxErrorWrongRetirementEpoch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     wrongRetirementEpoch: WrongRetirementEpoch
 
 
@@ -1310,9 +1250,6 @@ class UInt8(BaseModel):
 
 
 class SubmitTxErrorStakeKeyAlreadyRegistered(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     stakeKeyAlreadyRegistered: DigestBlake2bVerificationKey
 
 
@@ -1321,169 +1258,100 @@ class PolicyId(BaseModel):
 
 
 class PoolCostTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     minimumCost: Lovelace
 
 
 class SubmitTxErrorPoolCostTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     poolCostTooSmall: PoolCostTooSmall
 
 
 class PoolMetadataHashTooBig(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     poolId: PoolId
     measuredSize: Int64
 
 
 class SubmitTxErrorPoolMetadataHashTooBig(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     poolMetadataHashTooBig: PoolMetadataHashTooBig
 
 
 class SubmitTxErrorStakeKeyNotRegistered(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     stakeKeyNotRegistered: DigestBlake2bVerificationKey
 
 
 class SubmitTxErrorRewardAccountNotExisting(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     rewardAccountNotExisting: None
 
 
 class RewardAccountNotEmpty(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     balance: Lovelace
 
 
 class SubmitTxErrorRewardAccountNotEmpty(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     rewardAccountNotEmpty: RewardAccountNotEmpty
 
 
 class SubmitTxErrorWrongCertificateType(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     wrongCertificateType: None
 
 
 class SubmitTxErrorUnknownGenesisKey(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     unknownGenesisKey: DigestBlake2bVerificationKey
 
 
 class SubmitTxErrorAlreadyDelegating(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     alreadyDelegating: DigestBlake2bVerificationKey
 
 
 class InsufficientFundsForMir(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     rewardSource: RewardPot
     sourceSize: Lovelace
     requestedAmount: Lovelace
 
 
 class SubmitTxErrorInsufficientFundsForMir(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     insufficientFundsForMir: InsufficientFundsForMir
 
 
 class TooLateForMir(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     currentSlot: Slot
     lastAllowedSlot: Slot
 
 
 class SubmitTxErrorTooLateForMir(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     tooLateForMir: TooLateForMir
 
 
 class SubmitTxErrorMirTransferNotCurrentlyAllowed(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     mirTransferNotCurrentlyAllowed: None
 
 
 class SubmitTxErrorMirNegativeTransferNotCurrentlyAllowed(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     mirNegativeTransferNotCurrentlyAllowed: None
 
 
 class SubmitTxErrorMirProducesNegativeUpdate(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     mirProducesNegativeUpdate: None
 
 
 class MirNegativeTransfer(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     rewardSource: RewardPot
     attemptedTransfer: Lovelace
 
 
 class SubmitTxErrorMirNegativeTransfer(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     mirNegativeTransfer: MirNegativeTransfer
 
 
 class SubmitTxErrorDuplicateGenesisVrf(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     duplicateGenesisVrf: DigestBlake2bVrfVerificationKey
 
 
 class NonGenesisVoters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     currentlyVoting: List[DigestBlake2bVerificationKey]
     shouldBeVoting: List[DigestBlake2bVerificationKey]
 
 
 class SubmitTxErrorNonGenesisVoters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     nonGenesisVoters: NonGenesisVoters
 
 
@@ -1493,75 +1361,45 @@ class VotingPeriod(Enum):
 
 
 class SubmitTxErrorProtocolVersionCannotFollow(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     protocolVersionCannotFollow: ProtocolVersion
 
 
-class MissingRequiredDatums(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
+class MissingRequiredDatumsObject(BaseModel):
     provided: Optional[List[DigestBlake2bDatum]] = None
     missing: List[DigestBlake2bDatum]
 
 
-class SubmitTxErrorMissingRequiredDatums(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    missingRequiredDatums: MissingRequiredDatums
+class MissingRequiredDatums(BaseModel):
+    missingRequiredDatums: MissingRequiredDatumsObject
 
 
 class UnspendableDatums(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     nonSpendable: List[DigestBlake2bDatum]
     acceptable: List[DigestBlake2bDatum]
 
 
 class SubmitTxErrorUnspendableDatums(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     unspendableDatums: UnspendableDatums
 
 
 class ExtraDataMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     provided: Union[DigestBlake2bScriptIntegrity, Null]
     inferredFromParameters: Union[DigestBlake2bScriptIntegrity, Null]
 
 
 class ScriptPurposeSpend(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     spend: TxIn
 
 
 class ScriptPurposeMint(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     mint: PolicyId
 
 
 class ScriptPurposeCertificate(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     certificate: Certificate
 
 
 class ScriptPurposeWithdrawal(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     withdrawal: RewardAccount
 
 
@@ -1575,30 +1413,18 @@ class ScriptPurpose(BaseModel):
 
 
 class NoRedeemer(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     noRedeemer: ScriptPurpose
 
 
 class NoWitness(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     noWitness: DigestBlake2bScript
 
 
 class NoCostModel(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     noCostModel: Language
 
 
 class BadTranslation(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     badTranslation: str = Field(
         ...,
         description="An (hopefully) informative error about the transaction execution failure.",
@@ -1606,140 +1432,83 @@ class BadTranslation(BaseModel):
 
 
 class SubmitTxErrorCollectErrors(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     collectErrors: List[Union[NoRedeemer, NoWitness, NoCostModel, BadTranslation]]
 
 
 class SubmitTxErrorExtraDataMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     extraDataMismatch: ExtraDataMismatch
 
 
 class SubmitTxErrorMissingRequiredSignatures(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingRequiredSignatures: List[DigestBlake2bVerificationKey]
 
 
 class SubmitTxErrorMissingCollateralInputs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingCollateralInputs: None
 
 
 class CollateralTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     requiredCollateral: Lovelace
     actualCollateral: Lovelace
 
 
 class SubmitTxErrorCollateralTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     collateralTooSmall: CollateralTooSmall
 
 
 class TooManyCollateralInputs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     maximumCollateralInputs: UInt64
     actualCollateralInputs: UInt64
 
 
 class SubmitTxErrorTooManyCollateralInputs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     tooManyCollateralInputs: TooManyCollateralInputs
 
 
 class SubmitTxErrorOutsideForecast(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     outsideForecast: Slot
 
 
 class SubmitTxErrorValidationTagMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     validationTagMismatch: None
 
 
 class SubmitTxErrorExtraScriptWitnesses(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     extraScriptWitnesses: List[DigestBlake2bScript]
 
 
 class ExecutionUnitsTooLarge(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     maximumExecutionUnits: ExUnits
     actualExecutionUnits: ExUnits
 
 
 class SubmitTxErrorExecutionUnitsTooLarge(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     executionUnitsTooLarge: ExecutionUnitsTooLarge
 
 
 class SubmitTxErrorUnspendableScriptInputs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     unspendableScriptInputs: List[TxIn]
 
 
 class MissingRequiredRedeemers(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missing: List[Dict[str, ScriptPurpose]]
 
 
 class UpdateWrongEpoch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     currentEpoch: Epoch
     requestedEpoch: Epoch
     votingPeriod: VotingPeriod
 
 
 class SubmitTxErrorWrongPoolCertificate(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     wrongPoolCertificate: UInt8
 
 
 class SubmitTxErrorUpdateWrongEpoch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     updateWrongEpoch: UpdateWrongEpoch
 
 
 class SubmitTxErrorMissingRequiredRedeemers(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingRequiredRedeemers: MissingRequiredRedeemers
 
 
@@ -1765,90 +1534,54 @@ class InvalidEntity(BaseModel):
 
 
 class NetworkMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     expectedNetwork: Network
     invalidEntities: List[InvalidEntity]
 
 
 class SubmitTxErrorNetworkMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     networkMismatch: NetworkMismatch
 
 
 class OutputTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     output: TxOut
     minimumRequiredValue: Lovelace
 
 
 class SubmitTxErrorOutputTooSmall(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     outputTooSmall: List[Union[TxOut, OutputTooSmall]]
 
 
 class SubmitTxErrorTooManyAssetsInOutput(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     tooManyAssetsInOutput: List[TxOut]
 
 
 class ValueNotConserved(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     consumed: Union[LovelaceDelta, Value]
     produced: Union[LovelaceDelta, Value]
 
 
 class SubmitTxErrorInvalidWitnesses(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     invalidWitnesses: List[VerificationKey]
 
 
 class SubmitTxErrorBadInputs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     badInputs: List[TxIn]
 
 
 class OutsideOfValidityInterval(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     currentSlot: Slot
     interval: ValidityInterval
 
 
 class SubmitTxErrorOutsideOfValidityInterval(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     outsideOfValidityInterval: OutsideOfValidityInterval
 
 
 class SubmitTxErrorValueNotConserved(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     valueNotConserved: ValueNotConserved
 
 
-class SubmitTxErrorExtraRedeemers(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
+class ExtraRedeemers(BaseModel):
     extraRedeemers: List[str]
 
 
@@ -1861,80 +1594,325 @@ class Era(Enum):
     Babbage = "Babbage"
 
 
-class EraMismatchObject(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
+class EraMismatch(BaseModel):
     queryEra: Era
     ledgerEra: Era
 
 
-class EraMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    eraMismatch: EraMismatchObject
+class SubmitTxErrorEraMismatch(BaseModel):
+    eraMismatch: EraMismatch
 
 
 class SubmitTxErrorCollateralHasNonAdaAssets(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     collateralHasNonAdaAssets: Value
 
 
 class SubmitTxErrorMissingDatumHashesForInputs(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     missingDatumHashesForInputs: List[TxIn]
 
 
 class SubmitTxErrorCollateralIsScript(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     collateralIsScript: Utxo
 
 
 class TotalCollateralMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     computedFromDelta: Lovelace
     declaredInField: Lovelace
 
 
 class SubmitTxErrorTotalCollateralMismatch(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     totalCollateralMismatch: TotalCollateralMismatch
 
 
 class SubmitTxErrorMalformedReferenceScripts(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     malformedReferenceScripts: List[DigestBlake2bScript]
 
 
 class SubmitTxErrorMalformedScriptWitnesses(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     malformedScriptWitnesses: List[DigestBlake2bScript]
 
 
-RollForward.update_forward_refs()
-BlockBabbage.update_forward_refs()
-Witness.update_forward_refs()
-TxBabbage.update_forward_refs()
+class Bound(BaseModel):
+    time: RelativeTime
+    slot: Slot
+    epoch: Epoch
+
+
+class EraSummary(BaseModel):
+    start: Bound
+    end: Optional[Bound]
+    parameters: EraParameters
+
+
+class SlotLength(BaseModel):
+    __root__: float = Field(
+        ...,
+        description="A slot length, in seconds. Starting from v5.5.4, this can be a floating number. Before v5.5.4, the floating value would be rounded to the nearest second.",
+    )
+
+
+class SafeZone(BaseModel):
+    __root__: conint(ge=0, le=18446744073709552999) = Field(
+        ...,
+        description="Number of slots from the tip of the ledger in which it is guaranteed that no hard fork can take place. This should be (at least) the number of slots in which we are guaranteed to have k blocks.",
+    )
+
+
+class EraParameters(BaseModel):
+    epochLength: Epoch
+    slotLength: SlotLength
+    safeZone: Optional[SafeZone]
+
+
+class PoolRank(BaseModel):
+    score: float
+    estimatedHitRate: float
+
+
+class PoolsRanking(BaseModel):
+    __root__: Optional[Dict[str, PoolRank]] = None
+
+
+GenesisConfig = GenesisByron | GenesisShelley | GenesisAlonzo
+
+
+class RewardInfoPool(BaseModel):
+    stake: Lovelace
+    ownerStake: Lovelace = Field(
+        ...,
+        description="The number of Lovelace owned by the stake pool owners. If this value is not at least as large as the 'pledgeRatio', the stake pool will not earn any rewards for the given epoch.",
+    )
+    approximatePerformance: confloat(ge=0.0) = Field(
+        ...,
+        description="Number of blocks produced divided by expected number of blocks (based on stake and epoch progress). Can be larger than 1.0 for pools that get lucky.",
+    )
+    poolParameters: PoolParameters = Field(
+        ...,
+        description="Some of the pool parameters relevant for the reward calculation.",
+    )
+
+
+class IndividualPoolRewardsProvenance(BaseModel):
+    totalMintedBlocks: UInt64 = Field(
+        ..., description="The number of blocks the pool produced."
+    )
+    totalStakeShare: Ratio = Field(
+        ..., description="The stake pool's stake share (portion of the total stake)."
+    )
+    activeStakeShare: Ratio = Field(
+        ...,
+        description="The stake pool's active stake share (portion of the active stake).",
+    )
+    ownerStake: Lovelace = Field(
+        ...,
+        description="The number of Lovelace owned by the stake pool owners. If this value is not at least as large as the 'pledgeRatio', the stake pool will not earn any rewards for the given epoch.",
+    )
+    parameters: PoolParameters
+    pledgeRatio: Ratio = Field(
+        ..., description="The stake pool's pledge ratio (over its total stake)."
+    )
+    maxRewards: Lovelace = Field(
+        ..., description="The maximum number of Lovelace this stake pool can earn."
+    )
+    apparentPerformance: Ratio = Field(
+        ...,
+        description="The stake pool's apparent performance according to Section 5.5.2 of the Shelley Design Spec.",
+    )
+    totalRewards: Lovelace = Field(
+        ..., description="The total Lovelace earned by the stake pool."
+    )
+    leaderRewards: Lovelace = Field(
+        ..., description="The total Lovelace earned by the stake pool leader."
+    )
+
+
+class RewardsProvenance(BaseModel):
+    epochLength: Epoch
+    decentralizationParameter: Ratio
+    maxLovelaceSupply: Lovelace
+    mintedBlocks: Dict[str, UInt64] = Field(
+        ..., description="Number of blocks minted by each pool."
+    )
+    totalMintedBlocks: Int64 = Field(
+        ..., description="The total number of blocks minted during the given epoch."
+    )
+    totalExpectedBlocks: Int64 = Field(
+        ...,
+        description="The number of blocks expected to be produced during the given epoch.",
+    )
+    incentive: Lovelace = Field(
+        ...,
+        description="The maximum amount of Lovelace which can be removed from the reserves to be given out as rewards for the given epoch.",
+    )
+    rewardsGap: Lovelace = Field(
+        ...,
+        description="The difference between the 'availableRewards' and what was actually distributed.",
+    )
+    availableRewards: Lovelace = Field(
+        ...,
+        description="The total Lovelace available for rewards for the given epoch, equal to 'totalRewards' less 'treasuryTax'.",
+    )
+    totalRewards: Lovelace = Field(
+        ...,
+        description="The reward pot for the given epoch, equal to the 'incentive' plus the fee pot.",
+    )
+    treasuryTax: Lovelace = Field(
+        ...,
+        description="The amount of Lovelace taken for the treasury for the given epoch.",
+    )
+    activeStake: Lovelace = Field(
+        ...,
+        description="The amount of Lovelace that is delegated during the given epoch.",
+    )
+    pools: Dict[str, IndividualPoolRewardsProvenance]
+
+
+class RewardsProvenanceNew(BaseModel):
+    desiredNumberOfPools: conint(ge=0, le=18446744073709552999) = Field(
+        ..., description="Desired number of stake pools."
+    )
+    poolInfluence: constr(regex=r"^-?[0-9]+/[0-9]+$") = Field(
+        ...,
+        description="Influence of the pool owner's pledge on rewards, as a ratio of two integers.",
+        examples=["2/3", "7/8"],
+    )
+    totalRewards: int = Field(
+        ..., description="Total rewards available for the given epoch."
+    )
+    activeStake: int = Field(
+        ..., description="The total amount of staked Lovelace during this epoch."
+    )
+    pools: Dict[str, RewardInfoPool]
+
+
+class PoolDistribution(BaseModel):
+    stake: Ratio
+    vrf: DigestBlake2bVrfVerificationKey
+
+
+class PoolDistributions(BaseModel):
+    __root__: Optional[Dict[str, PoolDistribution]] = None
+
+
+class EvaluationResult(BaseModel):
+    EvaluationResult: Dict[str, ExUnits]
+
+
+class MissingRequiredScripts(BaseModel):
+    missing: List[RedeemerPointer]
+    resolved: Dict[str, DigestBlake2bScript]
+
+
+class ScriptFailureMissingRequiredScripts(BaseModel):
+    missingRequiredScripts: MissingRequiredScripts
+
+
+class ValidatorFailed(BaseModel):
+    error: str
+    traces: List[str]
+
+
+class ValidatorFailedError(BaseModel):
+    validatorFailed: ValidatorFailed
+
+
+class NoCostModelForLanguage(BaseModel):
+    noCostModelForLanguage: Language
+
+
+class UnknownInputReferencedByRedeemer(BaseModel):
+    unknownInputReferencedByRedeemer: TxIn
+
+
+class NonScriptInputReferencedByRedeemer(BaseModel):
+    nonScriptInputReferencedByRedeemer: TxIn
+
+
+class IllFormedExecutionBudget(BaseModel):
+    illFormedExecutionBudget: Union[ExUnits, Null]
+
+
+class ScriptFailure(BaseModel):
+    __root__: List[
+        Union[
+            ExtraRedeemers,
+            MissingRequiredDatums,
+            ScriptFailureMissingRequiredScripts,
+            ValidatorFailedError,
+            UnknownInputReferencedByRedeemer,
+            NonScriptInputReferencedByRedeemer,
+            IllFormedExecutionBudget,
+            NoCostModelForLanguage,
+        ]
+    ] = Field(
+        ..., description="Errors which may occur when evaluating an on-chain script."
+    )
+
+
+class EvaluationFailureScriptFailures(BaseModel):
+    ScriptFailures: Dict[str, ScriptFailure]
+
+
+class EvaluationFailureIncompatibleEra(BaseModel):
+    IncompatibleEra: IncompatibleEraEnum = Field(
+        ..., description="The era in which the transaction has been identified."
+    )
+
+
+class EvaluationFailureAdditionalUtxoOverlap(BaseModel):
+    AdditionalUtxoOverlap: List[TxIn]
+
+
+class EvaluationFailureNotEnoughSynced(BaseModel):
+    NotEnoughSynced: NotEnoughSynced
+
+
+class CannotCreateEvaluationContext(BaseModel):
+    reason: str
+
+
+class EvaluationFailureCannotCreateEvaluationContext(BaseModel):
+    CannotCreateEvaluationContext: CannotCreateEvaluationContext
+
+
+class EvaluationFailure(BaseModel):
+    EvaluationFailure: Union[
+        EvaluationFailureScriptFailures,
+        EvaluationFailureIncompatibleEra,
+        EvaluationFailureAdditionalUtxoOverlap,
+        EvaluationFailureNotEnoughSynced,
+        EvaluationFailureCannotCreateEvaluationContext,
+    ]
+
+
 AuxiliaryData.update_forward_refs()
 AuxiliaryDataBody.update_forward_refs()
-BlockShelley.update_forward_refs()
 BlockAllegra.update_forward_refs()
-TxOut.update_forward_refs()
-BlockMary.update_forward_refs()
 BlockAlonzo.update_forward_refs()
+BlockBabbage.update_forward_refs()
+BlockMary.update_forward_refs()
+BlockProof.update_forward_refs()
+BlockShelley.update_forward_refs()
+Byron.update_forward_refs()
+CostModel.update_forward_refs()
+DelegationsAndRewards.update_forward_refs()
+DelegationsAndRewardsByAccounts.update_forward_refs()
+EpochBoundaryBlock.update_forward_refs()
+EraSummary.update_forward_refs()
+ExUnits.update_forward_refs()
+GenesisAlonzo.update_forward_refs()
+GenesisByron.update_forward_refs()
+GenesisShelley.update_forward_refs()
+NullableRatio.update_forward_refs()
+NullableUInt64.update_forward_refs()
+Prices.update_forward_refs()
+ProtocolVersion.update_forward_refs()
+RollForward.update_forward_refs()
+StandardBlock.update_forward_refs()
+StandardBlockBody.update_forward_refs()
+SoftwareVersion.update_forward_refs()
+StandardBlockBodyUpdatePayload.update_forward_refs()
 SubmitTxErrorCollateralIsScript.update_forward_refs()
+TxBabbage.update_forward_refs()
+TxOut.update_forward_refs()
+Witness.update_forward_refs()

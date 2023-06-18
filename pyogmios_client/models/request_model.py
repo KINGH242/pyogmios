@@ -29,3 +29,54 @@ class Request(BaseRequestResponse):
             args=args,
             mirror=mirror,
         )
+
+
+class RequestNext(BaseRequestResponse):
+    methodname = MethodName.REQUEST_NEXT
+
+    @staticmethod
+    def from_base(
+        args: Optional[Dict[str, Any]] = None,
+        mirror: Optional[Any] = None,
+    ) -> RequestNext:
+        return RequestNext(
+            **Request.from_base_request(
+                method_name=MethodName.REQUEST_NEXT,
+                args=args,
+                mirror=mirror,
+            ).dict()
+        )
+
+
+class RequestRelease(BaseRequestResponse):
+    methodname = MethodName.RELEASE
+
+    @staticmethod
+    def from_base(
+        args: Optional[Dict[str, Any]] = None,
+        mirror: Optional[Any] = None,
+    ) -> RequestRelease:
+        return RequestRelease(
+            **Request.from_base_request(
+                method_name=MethodName.RELEASE,
+                args=args,
+                mirror=mirror,
+            ).dict()
+        )
+
+
+class RequestAwaitAcquire(BaseRequestResponse):
+    methodname = MethodName.AWAIT_ACQUIRE
+
+    @staticmethod
+    def from_base(
+        args: Optional[Dict[str, Any]] = None,
+        mirror: Optional[Any] = None,
+    ) -> RequestAwaitAcquire:
+        return RequestAwaitAcquire(
+            **Request.from_base_request(
+                method_name=MethodName.AWAIT_ACQUIRE,
+                args=args,
+                mirror=mirror,
+            ).dict()
+        )

@@ -1,6 +1,5 @@
 from typing import List, Union, Optional, Dict
 
-
 from pyogmios_client.enums import AcquireFailureDetails
 from pyogmios_client.models import (
     SubmitTxErrorUnspendableDatums,
@@ -9,7 +8,7 @@ from pyogmios_client.models import (
     SubmitTxErrorCollateralHasNonAdaAssets,
     SubmitTxErrorCollateralIsScript,
     SubmitTxErrorMissingDatumHashesForInputs,
-    SubmitTxErrorExtraRedeemers,
+    ExtraRedeemers,
     SubmitTxErrorUnspendableScriptInputs,
     SubmitTxErrorMissingRequiredRedeemers,
     SubmitTxErrorUpdateWrongEpoch,
@@ -20,8 +19,6 @@ from pyogmios_client.models import (
     SubmitTxErrorValueNotConserved,
     SubmitTxErrorOutsideOfValidityInterval,
     SubmitTxErrorBadInputs,
-    SubmitTxErrorInvalidWitnesses,
-    EraMismatch,
     PointOrOrigin,
     Slot,
     ExUnits,
@@ -63,7 +60,7 @@ from pyogmios_client.models import (
     SubmitTxErrorDuplicateGenesisVrf,
     SubmitTxErrorNonGenesisVoters,
     SubmitTxErrorProtocolVersionCannotFollow,
-    SubmitTxErrorMissingRequiredDatums,
+    MissingRequiredDatums,
     SubmitTxErrorExtraDataMismatch,
     SubmitTxErrorMissingRequiredSignatures,
     SubmitTxErrorMissingCollateralInputs,
@@ -76,6 +73,8 @@ from pyogmios_client.models import (
     SubmitTxErrorTotalCollateralMismatch,
     SubmitTxErrorMalformedReferenceScripts,
     SubmitTxErrorMalformedScriptWitnesses,
+    SubmitTxErrorInvalidWitnesses,
+    SubmitTxErrorEraMismatch,
 )
 from pyogmios_client.models.base_model import BaseModel
 
@@ -88,8 +87,20 @@ class AcquireSuccess(BaseModel):
     point: PointOrOrigin
 
 
+class AcquireFailureResult(BaseModel):
+    AcquireFailure: AcquireFailure
+
+
+class AcquireSuccessResult(BaseModel):
+    AcquireSuccess: AcquireSuccess
+
+
 class AwaitAcquired(BaseModel):
     slot: Slot
+
+
+class AwaitAcquiredResult(BaseModel):
+    AwaitAcquired: AwaitAcquired
 
 
 class EvaluationResult(BaseModel):
@@ -115,14 +126,26 @@ class RollForward(BaseModel):
     tip: TipOrOrigin
 
 
+class RollBackwardResult(BaseModel):
+    RollBackward: RollBackward
+
+
+class RollForwardResult(BaseModel):
+    RollForward: RollForward
+
+
 class SubmitSuccess(BaseModel):
     txId: TxId
+
+
+class ReleaseResponseResult(BaseModel):
+    Released = "Released"
 
 
 class SubmitTxError(BaseModel):
     __root__: List[
         Union[
-            EraMismatch,
+            SubmitTxErrorEraMismatch,
             SubmitTxErrorInvalidWitnesses,
             SubmitTxErrorMissingVkWitnesses,
             SubmitTxErrorMissingScriptWitnesses,
@@ -168,12 +191,12 @@ class SubmitTxError(BaseModel):
             SubmitTxErrorUpdateWrongEpoch,
             SubmitTxErrorProtocolVersionCannotFollow,
             SubmitTxErrorMissingRequiredRedeemers,
-            SubmitTxErrorMissingRequiredDatums,
+            MissingRequiredDatums,
             SubmitTxErrorUnspendableDatums,
             SubmitTxErrorExtraDataMismatch,
             SubmitTxErrorMissingRequiredSignatures,
             SubmitTxErrorUnspendableScriptInputs,
-            SubmitTxErrorExtraRedeemers,
+            ExtraRedeemers,
             SubmitTxErrorMissingDatumHashesForInputs,
             SubmitTxErrorMissingCollateralInputs,
             SubmitTxErrorCollateralTooSmall,
@@ -205,3 +228,8 @@ class Result(BaseModel):
     RollForward: Optional[RollForward]
     SubmitSuccess: Optional[SubmitSuccess]
     SubmitTxError: Optional[SubmitTxError]
+
+
+class FindIntersectResult(BaseModel):
+    IntersectionFound: Optional[IntersectionFound]
+    IntersectionNotFound: Optional[IntersectionNotFound]

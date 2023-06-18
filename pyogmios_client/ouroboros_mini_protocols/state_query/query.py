@@ -31,7 +31,19 @@ class ResponseArgs(BaseModel):
 
 
 async def query(request_args: RequestArgs, context: InteractionContext) -> Response:
-    async def to_send(websocket: WebSocketApp) -> Response | None:
+    """
+    Sends a query to the node.
+    :param request_args: The request arguments.
+    :param context: The interaction context to use for the query.
+    :return: The query response.
+    """
+
+    async def to_send(websocket: WebSocketApp) -> QueryResponse | None:
+        """
+        Sends the query to the node.
+        :param websocket: The websocket to use for the query.
+        :return: The query response.
+        """
         try:
             request_id = generate(size=5)
 
@@ -44,15 +56,19 @@ async def query(request_args: RequestArgs, context: InteractionContext) -> Respo
             )
             websocket.send(request.json())
             result = websocket.sock.recv()
-            query_response = QueryResponse(**json.loads(result))
+            response_json = json.loads(result)
+
+            if response_json["type"] == "jsonwsp/fault":
+                raise Exception(response_json["fault"])
+
+            query_response = QueryResponse(**response_json)
 
             if query_response.reflection.requestId != request_id:
                 return
 
-            return result
+            return query_response
         except Exception as error:
             raise error
 
     response = await send(to_send, context)
-    return Response(**json.loads(response))
-    # return send(to_send, context)
+    return response

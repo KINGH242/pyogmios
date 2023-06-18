@@ -2,7 +2,7 @@
 name = "pyogmios"
 version = "0.1.0"
 description = "Python client for Ogmios"
-authors = ["Hareem Adderley <hareem@wavegp.com>"]
+authors = ["Hareem Adderley <hadderley@kingpinapps.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -14,6 +14,8 @@ aiodns = "^3.0.0"
 websocket-client = "^1.5.2"
 promise = "^2.3"
 nanoid = "^2.0.0"
+pyee = "^9.1.0"
+rel = "^0.4.9"
 
 
 [tool.poetry.group.dev.dependencies]

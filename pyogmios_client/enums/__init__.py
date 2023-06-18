@@ -11,6 +11,11 @@ class InputSource(Enum):
     COLLATERALS = "collaterals"
 
 
+class InteractionType(Enum):
+    ONE_TIME = "OneTime"
+    LONG_RUNNING = "LongRunning"
+
+
 class Language(Enum):
     PLUTUS_V_1 = "plutus:v1"
     PLUTUS_V_2 = "plutus:v2"
@@ -75,3 +80,16 @@ class InvalidEntityEntity(Enum):
     ADDRESS = "Address"
     POOL_REGISTRATION = "PoolId"
     REWARD_ACCOUNT = "RewardAccount"
+
+
+class EraWithGenesis(Enum):
+    BYRON = "Byron"
+    SHELLEY = "Shelley"
+    ALONZO = "Alonzo"
+
+
+class IncompatibleEraEnum(Enum):
+    BYRON = "Byron"
+    SHELLEY = "Shelley"
+    ALLEGRA = "Allegra"
+    MARY = "Mary"

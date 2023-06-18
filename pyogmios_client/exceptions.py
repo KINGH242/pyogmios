@@ -43,3 +43,39 @@ class WebSocketClosedError(Exception):
     def __init__(self):
         self.message = "WebSocket is closed"
         super().__init__(self.message)
+
+
+class QueryUnavailableInCurrentEraError(Exception):
+    def __init__(self, query_name):
+        self.query_name = query_name
+        self.message = f"QueryUnavailableInCurrentEra. {query_name}"
+        super().__init__(self.message)
+
+
+class AcquirePointTooOldError(Exception):
+    def __init__(self):
+        self.message = "Acquire point too old"
+        super().__init__(self.message)
+
+
+class AcquirePointNotOnChainError(Exception):
+    def __init__(self):
+        self.message = "Acquire point not on chain"
+        super().__init__(self.message)
+
+
+class AcquirePointFailureError(Exception):
+    def __init__(self, failure):
+        self.failure = failure
+        self.message = f"Unknown AcquirePointFailure ${failure}"
+        super().__init__(self.message)
+
+
+class EraMismatchError(Exception):
+    def __init__(self, query_era: str, ledger_era: str):
+        self.query_era = query_era
+        self.ledger_era = ledger_era
+        self.message = (
+            f"Era mismatch. Query from era {query_era}. Ledger is in {ledger_era}"
+        )
+        super().__init__(self.message)

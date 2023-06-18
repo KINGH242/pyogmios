@@ -1,48 +1,70 @@
+import logging
 import threading
-from enum import Enum
-
-import websocket
 from typing import Optional, Callable
 
-from websocket import WebSocketApp
+import websocket
+from websocket import WebSocketApp, enableTrace
 
-from pyogmios_client.models.base_model import BaseModel
+from pyogmios_client.enums import InteractionType
 from pyogmios_client.exceptions import ServerNotReady, WebSocketClosedError
+from pyogmios_client.models.base_model import BaseModel
 from pyogmios_client.server_health import (
     get_server_health,
     ConnectionConfig,
     Connection,
     Options as ServerHealthOptions,
 )
+from pyogmios_client.utils.socket_utils import ensure_socket_is_open
 
 
 class InteractionContext(BaseModel):
     connection: Connection
     socket: WebSocketApp
     after_each: Callable[[WebSocketApp, Callable[[], None]], None]
+    log_level: str
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        logging.basicConfig(format="%(levelname)s - %(message)s")
+        logging.getLogger().setLevel(logging.getLevelName(self.log_level.upper()))
 
 
-class InteractionType(Enum):
-    OneTime = "OneTime"
-    LongRunning = "LongRunning"
-
-
-class Options(BaseModel):
+class InteractionContextOptions(BaseModel):
     connection_config: Optional[ConnectionConfig]
     interaction_type: Optional[InteractionType]
+    log_level: str = "DEBUG"
 
 
-class WebSocketErrorHandler:
-    def __call__(self, ws_app: WebSocketApp, exception: Exception):
-        print(exception)
+def default_error_handler(_: WebSocketApp, exception: Exception):
+    """
+    Default error handler.
+    :param _: The websocket app
+    :param exception: The exception
+    """
+    raise exception
 
 
-class WebSocketCloseHandler:
-    def __call__(self, ws_app: WebSocketApp, close_status_code: int, close_msg: str):
-        print(f"Closed with code: {close_status_code} and reason: {close_msg}")
+def default_close_handler(_: WebSocketApp, close_status_code: int, close_msg: str):
+    """
+    Default close handler.
+    :param _: The websocket app
+    :param close_status_code: The close status code
+    :param close_msg: The close message
+    """
+    if close_status_code or close_msg:
+        print(
+            f"Closed with code: {str(close_status_code)} and reason: {str(close_msg)}"
+        )
+    else:
+        print("Closed without code or reason")
 
 
 def create_connection_object(config: ConnectionConfig = None) -> Connection:
+    """
+    Creates a connection object.
+    :param config: The connection config
+    :return: The :class:`Connection` object
+    """
     host = config.host or "localhost" if config else "localhost"
     port = config.port or 1337 if config else 1337
     tls = config.tls or False if config else False
@@ -66,70 +88,92 @@ def create_connection_object(config: ConnectionConfig = None) -> Connection:
 
 
 async def create_interaction_context(
-    error_handler: WebSocketErrorHandler,
-    close_handler: WebSocketCloseHandler,
-    options: Options = None,
+    error_handler: Optional[Callable[[WebSocketApp, Exception], None]] = None,
+    close_handler: Optional[Callable[[WebSocketApp, int, str], None]] = None,
+    options: Optional[InteractionContextOptions] = None,
 ) -> InteractionContext | None:
-    connection = create_connection_object(
-        options.connection_config if options else None
+    """
+    Create an interaction context.
+    :param error_handler: The error handler
+    :param close_handler: The close handler
+    :param options: The :class:`InteractionContextOptions` object
+    :return: The :class:`InteractionContext` object
+    """
+    interaction_context_options = options or InteractionContextOptions(
+        connection_config=None, interaction_type=InteractionType.ONE_TIME
     )
 
-    health = await get_server_health(
-        ServerHealthOptions(connection=connection)
-    )  # You need to implement this function
+    connection = create_connection_object(interaction_context_options.connection_config)
 
-    def close_on_completion():
-        return (
-            (options.interaction_type or "LongRunning") == "OneTime"
-            if options
-            else "OneTime"
-        )
+    health = await get_server_health(ServerHealthOptions(connection=connection))
+
+    def close_on_completion() -> bool:
+        """
+        Whether to close the socket on completion.
+        :return:
+        """
+        return interaction_context_options.interaction_type is InteractionType.ONE_TIME
 
     try:
         if health.last_tip_update is None:
             raise ServerNotReady(health)
 
         def after_each(ws_app: WebSocketApp, callback: Callable[[], None]):
+            """
+            Callback to run after each.
+            :param ws_app: The websocket app
+            :param callback: The callback
+            """
             if close_on_completion():
-                ws_app.send("close")
                 callback()
-                ws_app.close()
+                ws_app.close(
+                    status=websocket.STATUS_NORMAL, reason="Closed on completion"
+                )
             else:
                 callback()
 
         def on_initial_error(ws_app: WebSocketApp, error: Exception):
+            """
+            On initial error.
+            :param ws_app: The websocket app
+            :param error: The error
+            """
             ws_app.close()
             raise error
 
-        def on_open(ws_app: WebSocketApp):
-            return InteractionContext(
-                connection=connection, socket=ws_app, after_each=after_each
-            )
-
         def on_message(ws_app, message):
+            """
+            On message.
+            :param ws_app: The websocket app
+            :param message: The message
+            """
             print(f"Message: {message}")
             if message == "error":
                 on_initial_error(ws_app, Exception(message))
             elif message == "close":
                 raise WebSocketClosedError()
 
-        websocket.enableTrace(True)
+        if interaction_context_options.log_level == "INFO":
+            enableTrace(True)
         websocket_app = WebSocketApp(
             connection.address.webSocket,
-            on_open=on_open,
             on_message=on_message,
-            on_close=close_handler,
-            on_error=error_handler,
+            on_close=close_handler or default_close_handler,
+            on_error=error_handler or default_error_handler,
         )
 
         websocket_thread = threading.Thread(target=websocket_app.run_forever)
         websocket_thread.daemon = True
         websocket_thread.start()
 
+        await ensure_socket_is_open(websocket_app)
+        return InteractionContext(
+            connection=connection,
+            socket=websocket_app,
+            after_each=after_each,
+            log_level=options.log_level,
+        )
+
     except ServerNotReady as e:
         print(e)
         return None
-    else:
-        return InteractionContext(
-            connection=connection, socket=websocket_app, after_each=after_each
-        )

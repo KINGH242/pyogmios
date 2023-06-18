@@ -5,6 +5,10 @@ from promise import Promise
 
 
 class Queue:
+    """
+    A queue that can be used to store tasks.
+    """
+
     def __init__(self):
         self._elements = deque()
 

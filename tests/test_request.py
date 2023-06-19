@@ -1,12 +1,9 @@
 import json
 from typing import Dict
-from unittest.mock import MagicMock
 
 import pytest
 
 from pyogmios_client.connection import (
-    WebSocketErrorHandler,
-    WebSocketCloseHandler,
     create_interaction_context,
 )
 from pyogmios_client.request import send
@@ -15,10 +12,8 @@ from tests.conftest import RequestFactory
 
 @pytest.mark.asyncio
 async def test_send():
-    error_handler = MagicMock(spec=WebSocketErrorHandler)
-    close_handler = MagicMock(spec=WebSocketCloseHandler)
 
-    context = await create_interaction_context(error_handler, close_handler)
+    context = await create_interaction_context()
 
     async def to_send(socket) -> Dict:
         request = RequestFactory.build()

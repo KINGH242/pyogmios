@@ -32,12 +32,12 @@ class ResponseArgsFactory(ModelFactory):
     __model__ = ResponseArgs
 
 
-class InteractionContextFactory(ModelFactory):
-    __model__ = InteractionContext
-
-
 class ServerHealthFactory(ModelFactory):
     __model__ = ServerHealth
+
+
+class InteractionContextFactory(ModelFactory):
+    __model__ = InteractionContext
 
 
 @pytest.fixture
@@ -80,3 +80,37 @@ def mock_send(monkeypatch):
         return kwargs
 
     monkeypatch.setattr("pyogmios_client.request.send", mock_send)
+
+
+@pytest.fixture
+def fake_server_health():
+    """
+    Fixture for a fake server health response
+    """
+    return {
+        "startTime": "2023-06-18T23:18:44.597761Z",
+        "lastKnownTip": {
+            "slot": 95564600,
+            "hash": "36881dc2a6e2e998d168e40048522a9b89a441d8702283501f0bbc64e0611f16",
+            "blockNo": 8921790,
+        },
+        "lastTipUpdate": "2023-06-18T23:28:11.742438Z",
+        "networkSynchronization": 1,
+        "currentEra": "Babbage",
+        "metrics": {
+            "activeConnections": 0,
+            "runtimeStats": {
+                "cpuTime": 1154541000,
+                "currentHeapSize": 354,
+                "gcCpuTime": 682582000,
+                "maxHeapSize": 367,
+            },
+            "sessionDurations": {"max": 0, "mean": 0, "min": 0},
+            "totalConnections": 0,
+            "totalMessages": 0,
+            "totalUnrouted": 0,
+        },
+        "connectionStatus": "connected",
+        "currentEpoch": 418,
+        "slotInEpoch": 351800,
+    }

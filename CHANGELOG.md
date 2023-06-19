@@ -1,3 +1,10 @@
+## 0.7.1 (2023-06-19)
+
+### Fix
+
+- use threading events in websocket on open
+- use era mismatch result
+
 ## 0.7.0 (2023-06-18)
 
 ### Feat

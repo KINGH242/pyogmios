@@ -44,7 +44,7 @@ addopts = "-p no:cacheprovider"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.7.0"
+version = "0.7.1"
 version_files = [
     "pyogmios_client/__init__.py:__version__",
     "pyproject.toml:version"

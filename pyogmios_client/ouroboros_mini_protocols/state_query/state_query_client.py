@@ -176,14 +176,16 @@ async def create_state_query_client(
     websocket_app = context.socket
 
     async def acquire(point: PointOrOrigin) -> StateQueryClient:
+        """
+        Acquire the a point
+        """
         client = await create_state_query_client(context, Options(point=point))
         return client
 
-    async def run_state_query(state_query: Callable) -> Any:
-        await ensure_socket_is_open(websocket_app)
-        return await state_query(context)
-
     async def release() -> ReleaseResponse | None:
+        """
+        Release the state query client
+        """
         await ensure_socket_is_open(websocket_app)
         request_id = generate(size=5)
         try:
@@ -212,58 +214,97 @@ async def create_state_query_client(
             print("Shutting down State Query Client...")
 
     async def query_block_height() -> BlockNoOrOrigin:
+        """
+        Query the block height
+        """
         await ensure_socket_is_open(websocket_app)
         return await block_height(context)
 
     async def query_chain_tip() -> PointOrOrigin:
+        """
+        Query the chain tip
+        """
         await ensure_socket_is_open(websocket_app)
         return await chain_tip(context)
 
     async def query_current_epoch() -> Epoch:
+        """
+        Query the current epoch
+        """
         await ensure_socket_is_open(websocket_app)
         return await current_epoch(context)
 
     async def query_current_protocol_parameters() -> ProtocolParametersBabbage | ProtocolParametersAlonzo | ProtocolParametersShelley:
+        """
+        Query the current protocol parameters
+        """
         await ensure_socket_is_open(websocket_app)
         return await current_protocol_parameters(context)
 
     async def query_delegations_and_rewards(
         stake_key_hashes: List[DigestBlake2BCredential],
     ) -> DelegationsAndRewardsByAccounts:
+        """
+        Query delegations and rewards
+        """
         await ensure_socket_is_open(websocket_app)
         return await delegations_and_rewards(context, stake_key_hashes)
 
     async def query_era_start() -> Bound:
+        """
+        Query the era start
+        """
         await ensure_socket_is_open(websocket_app)
         return await era_start(context)
 
     async def query_era_summaries() -> List[EraSummary]:
+        """
+        Query the era summaries
+        """
         await ensure_socket_is_open(websocket_app)
         return await era_summaries(context)
 
     async def query_genesis_config(era: EraWithGenesis) -> List[EraSummary]:
+        """
+        Query the genesis config
+        """
         await ensure_socket_is_open(websocket_app)
         return await genesis_config(context, era)
 
     async def query_ledger_tip() -> PointOrOrigin:
+        """
+        Query the ledger tip
+        """
         await ensure_socket_is_open(websocket_app)
         return await ledger_tip(context)
 
     async def query_non_myopic_member_rewards(
         input_list: List[Lovelace] | List[DigestBlake2bCredential],
     ) -> NonMyopicMemberRewards:
+        """
+        Query non myopic member rewards
+        """
         await ensure_socket_is_open(websocket_app)
         return await non_myopic_member_rewards(context, input_list)
 
     async def query_pool_ids() -> List[PoolId]:
+        """
+        Query pool ids
+        """
         await ensure_socket_is_open(websocket_app)
         return await pool_ids(context)
 
     async def query_pool_parameters(pools: List[PoolId]) -> Dict[str, PoolParameters]:
+        """
+        Query pool parameters
+        """
         await ensure_socket_is_open(websocket_app)
         return await pool_parameters(context, pools)
 
     async def query_pools_ranking() -> PoolsRanking:
+        """
+        Query pools ranking
+        """
         await ensure_socket_is_open(websocket_app)
         return await pools_ranking(context)
 
@@ -272,28 +313,46 @@ async def create_state_query_client(
     ] | Dict[str, ProtocolParametersAlonzo] | Dict[
         str, ProtocolParametersBabbage
     ] | None:
+        """
+        Query proposed protocol parameters
+        """
         await ensure_socket_is_open(websocket_app)
         return await proposed_protocol_parameters(context)
 
     async def query_rewards_provenance() -> RewardsProvenance:
+        """
+        Query rewards provenance
+        """
         await ensure_socket_is_open(websocket_app)
         return await rewards_provenance(context)
 
     async def query_rewards_provenance_new() -> RewardsProvenanceNew:
+        """
+        Query rewards provenance new
+        """
         await ensure_socket_is_open(websocket_app)
         return await rewards_provenance_new(context)
 
     async def query_stake_distribution() -> PoolDistribution:
+        """
+        Query stake distribution
+        """
         await ensure_socket_is_open(websocket_app)
         return await stake_distribution(context)
 
     async def query_system_start() -> UtcTime:
+        """
+        Query system start
+        """
         await ensure_socket_is_open(websocket_app)
         return await system_start(context)
 
     try:
 
         def create_client() -> StateQueryClient:
+            """
+            Create a state query client
+            """
             return StateQueryClient(
                 context=context,
                 acquire=acquire,

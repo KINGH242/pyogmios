@@ -4,6 +4,8 @@ version = "0.1.0"
 description = "Python client for Ogmios"
 authors = ["Hareem Adderley <hadderley@kingpinapps.com>"]
 readme = "README.md"
+packages = [{include = "pyogmios_client"}]
+
 
 [tool.poetry.dependencies]
 python = "^3.10"

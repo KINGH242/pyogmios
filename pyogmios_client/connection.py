@@ -14,7 +14,6 @@ from pyogmios_client.server_health import (
     Connection,
     Options as ServerHealthOptions,
 )
-from pyogmios_client.utils.socket_utils import ensure_socket_is_open
 
 
 class InteractionContext(BaseModel):
@@ -35,13 +34,14 @@ class InteractionContextOptions(BaseModel):
     log_level: str = "DEBUG"
 
 
-def default_error_handler(_: WebSocketApp, exception: Exception):
+def default_error_handler(_: WebSocketApp, error: Exception):
     """
     Default error handler.
     :param _: The websocket app
-    :param exception: The exception
+    :param error: The exception
     """
-    raise exception
+    logging.error(error)
+    raise error
 
 
 def default_close_handler(_: WebSocketApp, close_status_code: int, close_msg: str):
@@ -118,6 +118,9 @@ async def create_interaction_context(
         if health.last_tip_update is None:
             raise ServerNotReady(health)
 
+        # Create an event to signal when the websocket is opened
+        websocket_opened = threading.Event()
+
         def after_each(ws_app: WebSocketApp, callback: Callable[[], None]):
             """
             Callback to run after each.
@@ -138,10 +141,11 @@ async def create_interaction_context(
             :param ws_app: The websocket app
             :param error: The error
             """
+            logging.error(error)
             ws_app.close()
             raise error
 
-        def on_message(ws_app, message):
+        def on_message_handler(ws_app, message):
             """
             On message.
             :param ws_app: The websocket app
@@ -153,11 +157,20 @@ async def create_interaction_context(
             elif message == "close":
                 raise WebSocketClosedError()
 
+        def on_open_handler(_: WebSocketApp):
+            """
+            On open.
+            :param _: The websocket app
+            """
+            websocket_opened.set()
+
         if interaction_context_options.log_level == "INFO":
             enableTrace(True)
+
         websocket_app = WebSocketApp(
             connection.address.webSocket,
-            on_message=on_message,
+            on_message=on_message_handler,
+            on_open=on_open_handler,
             on_close=close_handler or default_close_handler,
             on_error=error_handler or default_error_handler,
         )
@@ -166,14 +179,16 @@ async def create_interaction_context(
         websocket_thread.daemon = True
         websocket_thread.start()
 
-        await ensure_socket_is_open(websocket_app)
+        if not websocket_opened.is_set():
+            websocket_opened.wait()
+
         return InteractionContext(
             connection=connection,
             socket=websocket_app,
             after_each=after_each,
-            log_level=options.log_level,
+            log_level=interaction_context_options.log_level,
         )
 
     except ServerNotReady as e:
-        print(e)
+        logging.error(e)
         return None

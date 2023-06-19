@@ -10,6 +10,11 @@ from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
 
 
 async def system_start(context: InteractionContext) -> UtcTime:
+    """
+    Query the system start time.
+    :param context: The interaction context to use for the query.
+    :return: The system start time.
+    """
     request_args = RequestArgs(
         method_name=MethodName.QUERY, args={"query": "systemStart"}
     )
@@ -17,9 +22,10 @@ async def system_start(context: InteractionContext) -> UtcTime:
     try:
         response = await query(request_args, context)
         query_response = SystemStartResponse(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("systemStart")
         else:
-            return query_response.result
+            return result
     except Exception as error:
         raise error

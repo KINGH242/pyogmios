@@ -5,20 +5,21 @@ from pyogmios_client.exceptions import (
     EraMismatchError,
     UnknownResultError,
 )
-from pyogmios_client.models import EraMismatch, PoolsRanking
+from pyogmios_client.models import PoolsRanking
 from pyogmios_client.models.response_model import PoolsRankingResponse
+from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
 )
 
 
-def is_era_mismatch(response: PoolsRankingResponse) -> bool:
-    if isinstance(response, EraMismatch):
-        return response.eraMismatch is not None
-
-
 def is_pools_ranking(response: PoolsRankingResponse) -> bool:
+    """
+    Check if the response is a list of pool ids.
+    :param response: The response to check.
+    :return: True if the response is a list of pool ids, False otherwise.
+    """
     result = response.result
     if isinstance(result, PoolsRanking):
         return True
@@ -26,6 +27,11 @@ def is_pools_ranking(response: PoolsRankingResponse) -> bool:
 
 
 async def pools_ranking(context: InteractionContext) -> PoolsRanking:
+    """
+    Query the pools ranking.
+    :param context: The interaction context to use for the query.
+    :return: The pools ranking.
+    """
     request_args = RequestArgs(
         method_name=MethodName.QUERY, args={"query": "poolsRanking"}
     )
@@ -33,10 +39,11 @@ async def pools_ranking(context: InteractionContext) -> PoolsRanking:
     try:
         response = await query(request_args, context)
         query_response = PoolsRankingResponse(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("poolsRanking")
-        elif is_era_mismatch(query_response):
-            era_mismatch = response.result.eraMismatch
+        elif isinstance(result, EraMismatchResult):
+            era_mismatch = result.eraMismatch
             raise EraMismatchError(
                 str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
             )

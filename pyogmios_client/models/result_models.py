@@ -75,6 +75,7 @@ from pyogmios_client.models import (
     SubmitTxErrorMalformedScriptWitnesses,
     SubmitTxErrorInvalidWitnesses,
     SubmitTxErrorEraMismatch,
+    EraMismatch,
 )
 from pyogmios_client.models.base_model import BaseModel
 
@@ -140,6 +141,10 @@ class SubmitSuccess(BaseModel):
 
 class ReleaseResponseResult(BaseModel):
     Released = "Released"
+
+
+class EraMismatchResult(BaseModel):
+    eraMismatch = EraMismatch
 
 
 class SubmitTxError(BaseModel):

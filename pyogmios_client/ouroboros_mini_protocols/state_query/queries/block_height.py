@@ -21,10 +21,10 @@ async def block_height(context: InteractionContext) -> BlockNoOrOrigin:
 
     try:
         response = await query(request_args, context)
-        print(response.dict())
         query_response = QueryResponseBlockHeight(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("blockHeight")
-        return response.result
+        return result
     except Exception as error:
         raise error

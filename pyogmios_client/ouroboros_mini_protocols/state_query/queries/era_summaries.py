@@ -12,6 +12,11 @@ from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
 
 
 def is_era_summaries(response: EraSummariesResponse) -> bool:
+    """
+    Check if the response is a list of EraSummary.
+    :param response: The response to check.
+    :return: True if the response is a list of EraSummary, False otherwise.
+    """
     result = response.result
     if isinstance(result, List):
         return all(
@@ -21,6 +26,11 @@ def is_era_summaries(response: EraSummariesResponse) -> bool:
 
 
 async def era_summaries(context: InteractionContext) -> List[EraSummary]:
+    """
+    Query the era summaries.
+    :param context: The interaction context to use for the query.
+    :return: The era summaries.
+    """
     request_args = RequestArgs(
         method_name=MethodName.QUERY, args={"query": "eraSummaries"}
     )

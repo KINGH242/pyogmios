@@ -10,6 +10,11 @@ from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
 
 
 def is_bound(response: EraStartResponse) -> bool:
+    """
+    Check if the response is a Bound.
+    :param response: The response to check.
+    :return: True if the response is a Bound, False otherwise.
+    """
     bound = response.result
     if isinstance(bound, Bound):
         return (
@@ -20,6 +25,11 @@ def is_bound(response: EraStartResponse) -> bool:
 
 
 async def era_start(context: InteractionContext) -> Bound:
+    """
+    Query the start of the current era.
+    :param context: The interaction context to use for the query.
+    :return: The start of the current era.
+    """
     request_args = RequestArgs(method_name=MethodName.QUERY, args={"query": "eraStart"})
 
     try:

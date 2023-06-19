@@ -4,20 +4,21 @@ from pyogmios_client.exceptions import (
     QueryUnavailableInCurrentEraError,
     EraMismatchError,
 )
-from pyogmios_client.models import EraMismatch, RewardsProvenanceNew
+from pyogmios_client.models import RewardsProvenanceNew
 from pyogmios_client.models.response_model import RewardsProvenanceNewResponse
+from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
 )
 
 
-def is_era_mismatch(response: RewardsProvenanceNewResponse) -> bool:
-    if isinstance(response, EraMismatch):
-        return response.eraMismatch is not None
-
-
 def is_rewards_provenance_new(response: RewardsProvenanceNewResponse) -> bool:
+    """
+    Check if the response is a rewards provenance new.
+    :param response: The response to check.
+    :return: True if the response is a rewards provenance, False otherwise.
+    """
     result = response.result
     if isinstance(result, RewardsProvenanceNew):
         return True
@@ -25,6 +26,11 @@ def is_rewards_provenance_new(response: RewardsProvenanceNewResponse) -> bool:
 
 
 async def rewards_provenance_new(context: InteractionContext) -> RewardsProvenanceNew:
+    """
+    Query the rewards provenance new.
+    :param context: The interaction context to use for the query.
+    :return: The new rewards provenance.
+    """
     request_args = RequestArgs(
         method_name=MethodName.QUERY, args={"query": "rewardsProvenance'"}
     )
@@ -32,16 +38,17 @@ async def rewards_provenance_new(context: InteractionContext) -> RewardsProvenan
     try:
         response = await query(request_args, context)
         query_response = RewardsProvenanceNewResponse(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("rewardsProvenance'")
         elif is_rewards_provenance_new(query_response):
-            return query_response.result
-        elif is_era_mismatch(query_response):
-            era_mismatch = response.result.eraMismatch
+            return result
+        elif isinstance(result, EraMismatchResult):
+            era_mismatch = result.eraMismatch
             raise EraMismatchError(
                 str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
             )
         else:
-            return query_response.result
+            return result
     except Exception as error:
         raise error

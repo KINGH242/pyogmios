@@ -9,6 +9,7 @@ from pyogmios_client.exceptions import (
 )
 from pyogmios_client.models import EraMismatch, Address, TxIn, Utxo
 from pyogmios_client.models.response_model import UtxoResponse
+from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
@@ -30,6 +31,11 @@ def is_utxo_list(response: UtxoResponse) -> bool:
 async def utxo(
     context: InteractionContext, filters: List[Address] | List[TxIn]
 ) -> Utxo:
+    """
+    Query the utxo for the given stake key or transaction hashes.
+    :param context: The interaction context to use for the query.
+    :param filters: The stake key or transaction hashes to query.
+    :return: The Unspent Transaction Output."""
     request_args = RequestArgs(
         method_name=MethodName.QUERY,
         args={
@@ -42,12 +48,13 @@ async def utxo(
     try:
         response = await query(request_args, context)
         query_response = UtxoResponse(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("utxo")
         elif is_utxo_list(query_response):
-            return query_response.result
-        elif is_era_mismatch(query_response):
-            era_mismatch = response.result.eraMismatch
+            return result
+        elif isinstance(result, EraMismatchResult):
+            era_mismatch = result.eraMismatch
             raise EraMismatchError(
                 str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
             )

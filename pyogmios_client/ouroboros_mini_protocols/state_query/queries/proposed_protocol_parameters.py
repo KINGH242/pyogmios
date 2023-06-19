@@ -7,21 +7,16 @@ from pyogmios_client.exceptions import (
     EraMismatchError,
 )
 from pyogmios_client.models import (
-    EraMismatch,
     ProtocolParametersBabbage,
     ProtocolParametersAlonzo,
     ProtocolParametersShelley,
 )
 from pyogmios_client.models.response_model import PoolsRankingResponse
+from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
 )
-
-
-def is_era_mismatch(response: PoolsRankingResponse) -> bool:
-    if isinstance(response, EraMismatch):
-        return response.eraMismatch is not None
 
 
 async def proposed_protocol_parameters(
@@ -29,6 +24,11 @@ async def proposed_protocol_parameters(
 ) -> Dict[str, ProtocolParametersShelley] | Dict[str, ProtocolParametersAlonzo] | Dict[
     str, ProtocolParametersBabbage
 ] | None:
+    """
+    Query the proposed protocol parameters.
+    :param context: The interaction context to use for the query.
+    :return: The proposed protocol parameters.
+    """
     request_args = RequestArgs(
         method_name=MethodName.QUERY, args={"query": "proposedProtocolParameters"}
     )
@@ -36,14 +36,15 @@ async def proposed_protocol_parameters(
     try:
         response = await query(request_args, context)
         query_response = PoolsRankingResponse(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("proposedProtocolParameters")
-        elif is_era_mismatch(query_response):
-            era_mismatch = response.result.eraMismatch
+        elif isinstance(result, EraMismatchResult):
+            era_mismatch = result.eraMismatch
             raise EraMismatchError(
                 str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
             )
         else:
-            return query_response.result
+            return result
     except Exception as error:
         raise error

@@ -48,6 +48,7 @@ from pyogmios_client.models.result_models import (
     AcquireFailureResult,
     AwaitAcquiredResult,
     ReleaseResponseResult,
+    EraMismatchResult,
 )
 
 
@@ -156,7 +157,7 @@ class ChainTipResponse(QueryResponse):
 
 
 class CurrentEpochResponse(QueryResponse):
-    result: Optional[Union[Epoch, EraMismatch, QueryUnavailableInCurrentEra]]
+    result: Optional[Union[Epoch, EraMismatchResult, QueryUnavailableInCurrentEra]]
 
 
 class CurrentProtocolParametersResponse(QueryResponse):
@@ -165,7 +166,7 @@ class CurrentProtocolParametersResponse(QueryResponse):
             ProtocolParametersShelley,
             ProtocolParametersAlonzo,
             ProtocolParametersBabbage,
-            EraMismatch,
+            EraMismatchResult,
             QueryUnavailableInCurrentEra,
         ]
     ]
@@ -174,7 +175,9 @@ class CurrentProtocolParametersResponse(QueryResponse):
 class DelegationsAndRewardsResponse(QueryResponse):
     result: Optional[
         Union[
-            DelegationsAndRewardsByAccounts, EraMismatch, QueryUnavailableInCurrentEra
+            DelegationsAndRewardsByAccounts,
+            EraMismatchResult,
+            QueryUnavailableInCurrentEra,
         ]
     ]
 

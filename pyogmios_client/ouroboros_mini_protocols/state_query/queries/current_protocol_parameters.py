@@ -6,24 +6,24 @@ from pyogmios_client.exceptions import (
     UnknownResultError,
 )
 from pyogmios_client.models import (
-    EraMismatch,
     ProtocolParametersBabbage,
     ProtocolParametersAlonzo,
     ProtocolParametersShelley,
 )
 from pyogmios_client.models.response_model import CurrentProtocolParametersResponse
+from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
 )
 
 
-def is_era_mismatch(response: CurrentProtocolParametersResponse) -> bool:
-    if isinstance(response, EraMismatch):
-        return response.eraMismatch is not None
-
-
 def is_protocol_parameters(response: CurrentProtocolParametersResponse) -> bool:
+    """
+    Check if the response is a protocol parameters response.
+    :param response: The response to check.
+    :return: True if the response is a protocol parameters response, False otherwise.
+    """
     result = response.result
     if isinstance(result, ProtocolParametersBabbage):
         return result.coinsPerUtxoByte is not None
@@ -36,6 +36,11 @@ def is_protocol_parameters(response: CurrentProtocolParametersResponse) -> bool:
 async def current_protocol_parameters(
     context: InteractionContext,
 ) -> ProtocolParametersBabbage | ProtocolParametersAlonzo | ProtocolParametersShelley:
+    """
+    Query the current protocol parameters.
+    :param context: The interaction context to use for the query.
+    :return: The current protocol parameters.
+    """
     request_args = RequestArgs(
         method_name=MethodName.QUERY, args={"query": "currentProtocolParameters"}
     )
@@ -43,12 +48,13 @@ async def current_protocol_parameters(
     try:
         response = await query(request_args, context)
         query_response = CurrentProtocolParametersResponse(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("currentProtocolParameters")
         elif is_protocol_parameters(query_response):
             return query_response.result
-        elif is_era_mismatch(query_response):
-            era_mismatch = response.result.eraMismatch
+        elif isinstance(result, EraMismatchResult):
+            era_mismatch = result.eraMismatch
             raise EraMismatchError(
                 str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
             )

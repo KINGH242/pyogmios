@@ -10,13 +10,19 @@ from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
 
 
 async def chain_tip(context: InteractionContext) -> PointOrOrigin:
+    """
+    Query the current chain tip.
+    :param context: The interaction context to use for the query.
+    :return: The current chain tip.
+    """
     request_args = RequestArgs(method_name=MethodName.QUERY, args={"query": "chainTip"})
 
     try:
         response = await query(request_args, context)
         query_response = ChainTipResponse(**response.dict())
-        if query_response.result == "QueryUnavailableInCurrentEra":
+        result = query_response.result
+        if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("chainTip")
-        return response.result
+        return result
     except Exception as error:
         raise error

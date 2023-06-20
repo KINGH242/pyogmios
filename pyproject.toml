@@ -5,7 +5,15 @@ description = "Python client for Ogmios"
 authors = ["Hareem Adderley <hadderley@kingpinapps.com>"]
 readme = "README.md"
 packages = [{include = "pyogmios_client"}]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache License 2.0",
+    "Operating System :: OS Independent",
+]
 
+[project.urls]
+"Homepage" = "https://github.com/KINGH242/pyogmios"
+"Bug Tracker" = "https://github.com/KINGH242/pyogmios/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"

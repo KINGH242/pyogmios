@@ -1,3 +1,8 @@
+"""
+This module contains the evaluate_tx function.
+
+The evaluate_tx function is used to evaluate a transaction.
+"""
 import json
 from typing import Optional, List
 
@@ -36,6 +41,7 @@ from pyogmios_client.ouroboros_mini_protocols.tx_submission.evaluation_errors im
     AdditionalUtxoOverlapError,
     NotEnoughSyncedError,
     CannotCreateEvaluationContextError,
+    MissingRequiredDatumsError,
 )
 
 
@@ -94,7 +100,7 @@ def handle_evaluate_tx_response(
                     elif isinstance(failure, IllFormedExecutionBudget):
                         errors += IllFormedExecutionBudgetError(failure)
                     elif isinstance(failure, MissingRequiredDatums):
-                        errors += MissingRequiredDatums(failure)
+                        errors += MissingRequiredDatumsError(failure)
                     elif isinstance(failure, MissingRequiredScripts):
                         errors += MissingRequiredScriptsError(failure)
                     elif isinstance(failure, NoCostModelForLanguage):

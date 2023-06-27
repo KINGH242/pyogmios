@@ -31,7 +31,6 @@ from pyogmios_client.models import (
     SubmitTxErrorMissingCollateralInputs,
     SubmitTxErrorMissingDatumHashesForInputs,
     MissingRequiredDatums,
-    MissingRequiredRedeemers,
     SubmitTxErrorMissingRequiredSignatures,
     SubmitTxErrorMissingScriptWitnesses,
     SubmitTxErrorMissingTxMetadata,
@@ -68,6 +67,7 @@ from pyogmios_client.models import (
     SubmitTxErrorWrongCertificateType,
     SubmitTxErrorWrongPoolCertificate,
     SubmitTxErrorWrongRetirementEpoch,
+    SubmitTxErrorMissingRequiredRedeemers,
 )
 from pyogmios_client.models.generated import SubmitTxErrorAddressAttributesTooLarge
 
@@ -377,7 +377,7 @@ class MissingRequiredRedeemersError(Exception):
     Missing input witnesses error.
     """
 
-    def __init__(self, raw_error: MissingRequiredRedeemers):
+    def __init__(self, raw_error: SubmitTxErrorMissingRequiredRedeemers):
         super().__init__()
         self.message = json.dumps(raw_error.missingRequiredRedeemers)
 

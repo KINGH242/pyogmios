@@ -1,3 +1,9 @@
+## 0.7.2 (2023-06-26)
+
+### Fix
+
+- handle MissingRequiredDatumsError
+
 ## 0.7.1 (2023-06-19)
 
 ### Fix

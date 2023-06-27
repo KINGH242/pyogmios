@@ -1,3 +1,8 @@
+"""
+This module contains the send function.
+
+The send function is used to send requests and call the after each function.
+"""
 import logging
 from typing import Callable, TypeVar
 

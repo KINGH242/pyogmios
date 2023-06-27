@@ -1,3 +1,22 @@
+"""
+This module contains the error types that can be returned by the evaluation endpoint.
+
+The error types are:
+
+- AdditionalUtxoOverlapError
+- CannotCreateEvaluationContextError
+- ExtraRedeemersError
+- IllFormedExecutionBudgetError
+- IncompatibleEraError
+- MissingRequiredDatumsError
+- MissingRequiredScriptsError
+- NoCostModelForLanguageError
+- NonScriptInputReferencedByRedeemerError
+- NotEnoughSyncedError
+- UnknownInputReferencedByRedeemerError
+- UnknownResultError
+- ValidatorFailedError
+"""
 import json
 from typing import Union
 

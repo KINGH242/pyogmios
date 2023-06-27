@@ -1,9 +1,18 @@
+"""
+PyOgmios client exceptions
+
+This module contains the various exceptions that maybe raised by the client.
+"""
 from typing import List
 
 from pyogmios_client.models import PointOrOrigin
 
 
 class ServerNotReady(Exception):
+    """
+    Server not ready exception
+    """
+
     def __init__(self, health):
         self.health = health
         self.message = (
@@ -13,6 +22,10 @@ class ServerNotReady(Exception):
 
 
 class RequestError(Exception):
+    """
+    Request error exception
+    """
+
     def __init__(self, response):
         self.response = response
         self.message = f"Request error: {response.status}"
@@ -20,6 +33,10 @@ class RequestError(Exception):
 
 
 class IntersectionNotFoundError(Exception):
+    """
+    Intersection not found exception
+    """
+
     def __init__(self, points: PointOrOrigin | List[PointOrOrigin]):
         self.points = points
         self.message = f"Intersection with points {points.json()} not found"
@@ -27,6 +44,10 @@ class IntersectionNotFoundError(Exception):
 
 
 class UnknownResultError(Exception):
+    """
+    Unknown result error exception
+    """
+
     def __init__(self, result):
         self.result = result
         self.message = f"Unknown result error: {result}"
@@ -34,18 +55,30 @@ class UnknownResultError(Exception):
 
 
 class TipIsOriginError(Exception):
+    """
+    Tip is origin error exception
+    """
+
     def __init__(self):
         self.message = "Unable to produce point as the chain tip is the origin"
         super().__init__(self.message)
 
 
 class WebSocketClosedError(Exception):
+    """
+    WebSocket closed error exception
+    """
+
     def __init__(self):
         self.message = "WebSocket is closed"
         super().__init__(self.message)
 
 
 class QueryUnavailableInCurrentEraError(Exception):
+    """
+    Query unavailable in current era error exception
+    """
+
     def __init__(self, query_name):
         self.query_name = query_name
         self.message = f"QueryUnavailableInCurrentEra. {query_name}"
@@ -53,18 +86,30 @@ class QueryUnavailableInCurrentEraError(Exception):
 
 
 class AcquirePointTooOldError(Exception):
+    """
+    Acquire point too old error exception
+    """
+
     def __init__(self):
         self.message = "Acquire point too old"
         super().__init__(self.message)
 
 
 class AcquirePointNotOnChainError(Exception):
+    """
+    Acquire point not on chain error exception
+    """
+
     def __init__(self):
         self.message = "Acquire point not on chain"
         super().__init__(self.message)
 
 
 class AcquirePointFailureError(Exception):
+    """
+    Acquire point failure error exception
+    """
+
     def __init__(self, failure):
         self.failure = failure
         self.message = f"Unknown AcquirePointFailure ${failure}"
@@ -72,6 +117,10 @@ class AcquirePointFailureError(Exception):
 
 
 class EraMismatchError(Exception):
+    """
+    Era mismatch error exception
+    """
+
     def __init__(self, query_era: str, ledger_era: str):
         self.query_era = query_era
         self.ledger_era = ledger_era

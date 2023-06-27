@@ -1,3 +1,8 @@
+"""
+This module contains the EventEmitter class.
+
+The EventEmitter class can be used to emit events and listen to them.
+"""
 from typing import Dict
 
 from typing import TypeVar, Callable

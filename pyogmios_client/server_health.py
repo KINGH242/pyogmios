@@ -1,3 +1,8 @@
+"""
+Server health module
+
+This module contains the functions to check the server health.
+"""
 from typing import Optional
 
 import aiohttp
@@ -8,6 +13,10 @@ from pyogmios_client.models.server_health_model import ServerHealth
 
 
 class ConnectionConfig(BaseModel):
+    """
+    Connection configuration model class
+    """
+
     host: Optional[str]
     port: Optional[int]
     tls: Optional[bool]
@@ -15,16 +24,28 @@ class ConnectionConfig(BaseModel):
 
 
 class Address(BaseModel):
+    """
+    Address model class
+    """
+
     http: Optional[str]
     webSocket: Optional[str]
 
 
 class Connection(ConnectionConfig):
+    """
+    Connection model class
+    """
+
     max_payload: int
     address: Address
 
 
 class Options(BaseModel):
+    """
+    Options model class
+    """
+
     connection: Connection
 
 

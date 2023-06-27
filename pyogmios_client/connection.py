@@ -1,3 +1,8 @@
+"""
+Create a connection to the server.
+
+This module contains the classes and default functions to create a connection to the server.
+"""
 import logging
 import threading
 from typing import Optional, Callable
@@ -17,6 +22,10 @@ from pyogmios_client.server_health import (
 
 
 class InteractionContext(BaseModel):
+    """
+    Interaction context model class
+    """
+
     connection: Connection
     socket: WebSocketApp
     after_each: Callable[[WebSocketApp, Callable[[], None]], None]
@@ -29,6 +38,10 @@ class InteractionContext(BaseModel):
 
 
 class InteractionContextOptions(BaseModel):
+    """
+    Interaction context options model class
+    """
+
     connection_config: Optional[ConnectionConfig]
     interaction_type: Optional[InteractionType]
     log_level: str = "DEBUG"
@@ -151,7 +164,6 @@ async def create_interaction_context(
             :param ws_app: The websocket app
             :param message: The message
             """
-            print(f"Message: {message}")
             if message == "error":
                 on_initial_error(ws_app, Exception(message))
             elif message == "close":

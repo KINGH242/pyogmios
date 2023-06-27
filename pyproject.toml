@@ -16,7 +16,7 @@ classifiers = [
 "Bug Tracker" = "https://github.com/KINGH242/pyogmios/issues"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.8.10, <3.12"
 requests = "^2.31.0"
 pydantic = "^1.10.8"
 aiohttp = "^3.8.4"
@@ -24,7 +24,7 @@ aiodns = "^3.0.0"
 websocket-client = "^1.5.2"
 promise = "^2.3"
 nanoid = "^2.0.0"
-pyee = "^9.1.0"
+pyee = "^11.0.0"
 rel = "^0.4.9"
 
 

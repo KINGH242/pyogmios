@@ -7,8 +7,9 @@ readme = "README.md"
 packages = [{include = "pyogmios_client"}]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache License 2.0",
+    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
+    "Development Status :: 4 - Beta"
 ]
 
 [project.urls]

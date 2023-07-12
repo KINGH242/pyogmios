@@ -108,7 +108,6 @@ async def create_chain_sync_client(
                     print(err)
             elif response.methodname is MethodName.FIND_INTERSECT:
                 request_next(websocket_app)
-            websocket_app.on_message = on_message
 
         websocket_app.on_message = on_message
 

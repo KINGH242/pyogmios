@@ -248,7 +248,7 @@ class DigestBlake2bScriptIntegrity(BaseModel):
 
 
 class DigestBlake2bVerificationKey(BaseModel):
-    __root__: constr(min_length=56, max_length=56) = Field(
+    __root__: constr(min_length=56) = Field(
         ...,
         description="A Blake2b 28-byte digest of an Ed25519 verification key.",
         examples=["90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3"],
@@ -1914,5 +1914,8 @@ SoftwareVersion.update_forward_refs()
 StandardBlockBodyUpdatePayload.update_forward_refs()
 SubmitTxErrorCollateralIsScript.update_forward_refs()
 TxBabbage.update_forward_refs()
+TxByron.update_forward_refs()
+TxByronBody.update_forward_refs()
 TxOut.update_forward_refs()
+TxWitnessVk.update_forward_refs()
 Witness.update_forward_refs()

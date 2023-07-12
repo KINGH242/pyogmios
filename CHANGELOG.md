@@ -1,3 +1,10 @@
+## 0.7.3 (2023-07-12)
+
+### Fix
+
+- remove extra on_message
+- add missing forward refs
+
 ## 0.7.2 (2023-06-26)
 
 ### Fix

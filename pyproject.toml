@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pyogmios"
-version = "0.7.2"
+version = "0.7.3"
 description = "Python client for Ogmios"
 authors = ["Hareem Adderley <hadderley@kingpinapps.com>"]
 readme = "README.md"
@@ -53,7 +53,7 @@ addopts = "-p no:cacheprovider"
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.7.2"
+version = "0.7.3"
 version_files = [
     "pyogmios_client/__init__.py:__version__",
     "pyproject.toml:version"

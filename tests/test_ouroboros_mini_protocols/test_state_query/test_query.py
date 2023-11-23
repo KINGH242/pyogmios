@@ -1,43 +1,55 @@
-from unittest.mock import MagicMock
-
 import pytest
 
 from pyogmios_client.connection import (
-    WebSocketErrorHandler,
-    WebSocketCloseHandler,
     create_interaction_context,
 )
+from pyogmios_client.enums import MethodName
+from pyogmios_client.exceptions import PyOgmiosError
 from pyogmios_client.models.response_model import Response
-from pyogmios_client.ouroboros_mini_protocols.state_query.query import query
-from tests.conftest import RequestArgsFactory
+from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
+    query,
+    RequestArgs,
+)
 
 
 @pytest.mark.asyncio
-async def test_query_success():
+async def test_query_success(mocker, fake_query_response):
     # Arrange
-    error_handler = MagicMock(spec=WebSocketErrorHandler)
-    close_handler = MagicMock(spec=WebSocketCloseHandler)
-    request_args = RequestArgsFactory.build()
-    context = await create_interaction_context(error_handler, close_handler)
+    request_args = RequestArgs(
+        method_name=MethodName.QUERY,
+        args={"query": "test-query"},
+        mirror={"mirror": "test-mirror", "requestId": "test-request-id"},
+    )
+    context = await create_interaction_context()
+
+    mocker.patch(
+        "pyogmios_client.ouroboros_mini_protocols.state_query.query.send_request",
+        return_value=Response(**fake_query_response),
+    )
 
     # Act
     result = await query(request_args, context)
 
     # Assert
-    print(f"Result: {result}")
     assert isinstance(result, Response)
 
 
 @pytest.mark.asyncio
-async def test_query_error(mock_to_send):
+async def test_query_error(mocker):
     # Arrange
-    error_handler = MagicMock(spec=WebSocketErrorHandler)
-    close_handler = MagicMock(spec=WebSocketCloseHandler)
-    request_args = RequestArgsFactory.build()
-    context = await create_interaction_context(error_handler, close_handler)
+    request_args = RequestArgs(
+        method_name=MethodName.QUERY,
+        args={"query": "test-query"},
+        mirror={"mirror": "test-mirror", "requestId": "test-request-id"},
+    )
+    context = await create_interaction_context()
 
-    # Act
-    result = await query(request_args, context)
+    mocker.patch(
+        "pyogmios_client.ouroboros_mini_protocols.state_query.query.send_request",
+        side_effect=PyOgmiosError("test-error"),
+    )
 
-    # Assert
-    assert result == "Expected error result"
+    # Act & Assert
+    with pytest.raises(PyOgmiosError) as exc_info:
+        await query(request_args, context)
+    assert str(exc_info.value) == "test-error"

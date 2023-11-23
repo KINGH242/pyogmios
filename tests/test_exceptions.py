@@ -10,6 +10,7 @@ from pyogmios_client.exceptions import (
     TipIsOriginError,
     WebSocketClosedError,
 )
+from pyogmios_client.models import Origin
 
 
 def test_server_not_ready_exception():
@@ -35,14 +36,13 @@ def test_request_error_exception():
 
 
 def test_intersection_not_found_error_exception():
-    points = MagicMock()
-    points.json.return_value = "points_json"
-    message = "Intersection with points points_json not found"
+    origin = Origin("origin")
+    message = 'Intersection with points "origin" not found'
 
     with pytest.raises(IntersectionNotFoundError, match=message) as excinfo:
-        raise IntersectionNotFoundError(points)
+        raise IntersectionNotFoundError(origin)
 
-    assert excinfo.value.points == points
+    assert excinfo.value.points == origin
 
 
 def test_unknown_result_error_exception():

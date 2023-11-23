@@ -1,45 +1,77 @@
 from typing import List
-from unittest import mock
-from unittest.mock import MagicMock
 
 import pytest
 
 from pyogmios_client.connection import (
-    WebSocketErrorHandler,
-    WebSocketCloseHandler,
     create_interaction_context,
 )
-from pyogmios_client.models import EraSummary
-from pyogmios_client.ouroboros_mini_protocols.chain_sync.chain_sync_client import (
-    ChainSyncMessageHandlers,
+from pyogmios_client.exceptions import UnknownResultError
+from pyogmios_client.models import (
+    EraSummary,
+    Bound,
+    RelativeTime,
+    Epoch,
+    EraParameters,
+    SlotLength,
+    SafeZone,
+)
+from pyogmios_client.models.response_model import (
+    EraSummariesResponse,
+    QueryResponseReflection,
 )
 from pyogmios_client.ouroboros_mini_protocols.state_query.state_query_client import (
     create_state_query_client,
 )
-from tests.conftest import ServerHealthFactory
 
 
 @pytest.mark.asyncio
 async def test_era_summaries(mocker):
-    error_handler = MagicMock(spec=WebSocketErrorHandler)
-    close_handler = MagicMock(spec=WebSocketCloseHandler)
-    MagicMock(spec=ChainSyncMessageHandlers)
-
-    # Mock the get_server_health function to return a successful server health check
-
     mocker.patch(
-        "pyogmios_client.server_health.get_server_health",
-        return_value=ServerHealthFactory.build(),
+        "pyogmios_client.ouroboros_mini_protocols.state_query.queries.era_summaries.query",
+        return_value=EraSummariesResponse.from_base_response(
+            reflection=QueryResponseReflection(requestId="test-request-id"),
+            result=[
+                EraSummary(
+                    start=Bound(
+                        time=RelativeTime(123456789), slot=123456789, epoch=Epoch(500)
+                    ),
+                    end=Bound(
+                        time=RelativeTime(123456789), slot=123456789, epoch=Epoch(500)
+                    ),
+                    parameters=EraParameters(
+                        epochLength=Epoch(500),
+                        slotLength=SlotLength(123),
+                        safeZone=SafeZone(1232),
+                    ),
+                )
+            ],
+        ),
     )
-    interaction_context = await create_interaction_context(error_handler, close_handler)
-    # chain_sync_client = await create_chain_sync_client(context, message_handlers, options)
 
-    with mock.patch("pyogmios_client.utils.socket_utils.ensure_socket_is_open"):
-        with mock.patch(
-            "pyogmios_client.ouroboros_mini_protocols.chain_sync.request_next"
-        ) as request_next_mock:
-            request_next_mock.return_value = None
-            client = await create_state_query_client(interaction_context)
-            era_summaries = await client.era_summaries()
-            assert isinstance(era_summaries, List)
-            assert isinstance(era_summaries[1], EraSummary)
+    interaction_context = await create_interaction_context()
+    client = await create_state_query_client(interaction_context)
+    era_summaries = await client.era_summaries()
+    await client.shutdown()
+    assert isinstance(era_summaries, List)
+    assert isinstance(era_summaries[0], EraSummary)
+
+
+@pytest.mark.asyncio
+async def test_era_start_unknown_result(mocker):
+    mocker.patch(
+        "pyogmios_client.ouroboros_mini_protocols.state_query.queries.era_summaries.query",
+        return_value=EraSummariesResponse.from_base_response(
+            reflection=QueryResponseReflection(requestId="test-request-id")
+        ),
+    )
+
+    # Act & Assert
+    with pytest.raises(UnknownResultError) as exc_info:
+        interaction_context = await create_interaction_context()
+        client = await create_state_query_client(interaction_context)
+        era_summaries = await client.era_summaries()
+        client.shutdown()
+
+        assert isinstance(era_summaries, EraSummariesResponse)
+        assert exc_info.value.result == era_summaries
+        assert exc_info.value.message == f"Unknown result error:  {era_summaries}"

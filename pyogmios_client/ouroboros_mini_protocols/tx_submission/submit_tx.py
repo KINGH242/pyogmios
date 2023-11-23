@@ -1,4 +1,3 @@
-import json
 from typing import List
 
 from pyogmios_client.connection import InteractionContext
@@ -149,6 +148,7 @@ from pyogmios_client.ouroboros_mini_protocols.tx_submission.submission_errors im
     MalformedReferenceScriptsError,
     MalformedScriptWitnessesError,
 )
+from pyogmios_client.request import send_request
 
 
 async def submit_tx(
@@ -165,10 +165,12 @@ async def submit_tx(
         args={"submit": bytes_},
     )
     try:
-        websocket = context.socket
-        websocket.send(request.json())
-        result = websocket.sock.recv()
-        evaluate_tx_response = SubmitTxResponse(**json.loads(result))
+        # websocket = context.socket
+        # websocket.send(request.json())
+        # result = websocket.sock.recv()
+        evaluate_tx_response = SubmitTxResponse.model_validate(
+            await send_request(request, context)
+        )
         return handle_submit_tx_response(evaluate_tx_response)
     except Exception as error:
         raise error

@@ -1,8 +1,8 @@
 from typing import Callable, Optional, Coroutine, Any, List
 
 from pyogmios_client.connection import InteractionContext
-from pyogmios_client.models import BaseModel, Utxo, TxId
-from pyogmios_client.models.generated import EvaluationResult
+from pyogmios_client.exceptions import WebSocketClosedError
+from pyogmios_client.models import BaseModel, Utxo, TxId, EvaluationResult
 from pyogmios_client.models.response_model import (
     SubmitTxResponse,
     Response,
@@ -33,9 +33,7 @@ def match_submit_tx(response: Response) -> SubmitTxResponse | None:
     :param response: The response
     :return: The submit tx response
     """
-    if isinstance(response, SubmitTxResponse):
-        return response
-    return None
+    return response if isinstance(response, SubmitTxResponse) else None
 
 
 def match_evaluate_tx(response: Response) -> EvaluateTxResponse | None:
@@ -44,9 +42,7 @@ def match_evaluate_tx(response: Response) -> EvaluateTxResponse | None:
     :param response: The response
     :return: The evaluate tx response
     """
-    if isinstance(response, EvaluateTxResponse):
-        return response
-    return None
+    return response if isinstance(response, EvaluateTxResponse) else None
 
 
 async def create_tx_submission_client(
@@ -67,8 +63,12 @@ async def create_tx_submission_client(
             :param bytes_: The bytes
             :return: The tx id
             """
-            await ensure_socket_is_open(context.socket)
-            return await submit_tx(context, bytes_)
+            try:
+                await ensure_socket_is_open(context.socket)
+                return await submit_tx(context, bytes_)
+            except Exception as err:
+                print(err)
+                await shutdown()
 
         async def default_evaluate_tx(
             bytes_: str, additional_utxo_set: Optional[Utxo] = None
@@ -79,8 +79,12 @@ async def create_tx_submission_client(
             :param additional_utxo_set: The additional utxo set
             :return: The evaluation result
             """
-            await ensure_socket_is_open(context.socket)
-            return await evaluate_tx(context, bytes_, additional_utxo_set)
+            try:
+                await ensure_socket_is_open(context.socket)
+                return await evaluate_tx(context, bytes_, additional_utxo_set)
+            except Exception as err:
+                print(err)
+                await shutdown()
 
         async def shutdown() -> None:
             """
@@ -89,8 +93,8 @@ async def create_tx_submission_client(
             try:
                 await ensure_socket_is_open(websocket_app)
                 websocket_app.close()
-            except Exception as err:
-                print(err)
+            except (WebSocketClosedError, AttributeError):
+                print("TxSubmission Client already closed.")
             else:
                 print("Shutting down TxSubmission Client...")
 

@@ -34,7 +34,7 @@ async def era_start(context: InteractionContext) -> Bound:
 
     try:
         response = await query(request_args, context)
-        query_response = EraStartResponse(**response.dict())
+        query_response = EraStartResponse(**response.model_dump())
         if is_bound(query_response):
             return query_response.result
         else:

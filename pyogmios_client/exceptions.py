@@ -39,7 +39,12 @@ class IntersectionNotFoundError(Exception):
 
     def __init__(self, points: PointOrOrigin | List[PointOrOrigin]):
         self.points = points
-        self.message = f"Intersection with points {points.json()} not found"
+        if isinstance(points, list):
+            self.message = f"Intersection with points {[point.model_dump_json() for point in points]} not found"
+        else:
+            self.message = (
+                f"Intersection with points {points.model_dump_json()} not found"
+            )
         super().__init__(self.message)
 
 
@@ -128,3 +133,22 @@ class EraMismatchError(Exception):
             f"Era mismatch. Query from era {query_era}. Ledger is in {ledger_era}"
         )
         super().__init__(self.message)
+
+
+class JsonwspFaultError(Exception):
+    """
+    Jsonwsp fault error exception
+    """
+
+    def __init__(self, code: str, string: str):
+        self.code = code
+        self.message = f"Jsonwsp fault error code {code}. {string}"
+        super().__init__(self.message)
+
+
+class PyOgmiosError(Exception):
+    """
+    PyOgmios error exception
+    """
+
+    pass

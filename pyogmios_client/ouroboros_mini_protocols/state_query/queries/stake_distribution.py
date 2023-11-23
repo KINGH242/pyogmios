@@ -35,7 +35,7 @@ async def stake_distribution(context: InteractionContext) -> PoolDistribution:
 
     try:
         response = await query(request_args, context)
-        query_response = StakeDistributionResponse(**response.dict())
+        query_response = StakeDistributionResponse(**response.model_dump())
         result = query_response.result
         if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("stakeDistribution")

@@ -19,9 +19,9 @@ async def chain_tip(context: InteractionContext) -> PointOrOrigin:
 
     try:
         response = await query(request_args, context)
-        query_response = ChainTipResponse(**response.dict())
+        query_response = ChainTipResponse(**response.model_dump())
         result = query_response.result
-        if result == "QueryUnavailableInCurrentEra":
+        if hasattr(result, "root") and result.root == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("chainTip")
         return result
     except Exception as error:

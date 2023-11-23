@@ -21,7 +21,7 @@ async def system_start(context: InteractionContext) -> UtcTime:
 
     try:
         response = await query(request_args, context)
-        query_response = SystemStartResponse(**response.dict())
+        query_response = SystemStartResponse(**response.model_dump())
         result = query_response.result
         if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("systemStart")

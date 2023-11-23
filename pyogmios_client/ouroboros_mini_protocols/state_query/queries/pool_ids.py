@@ -7,9 +7,8 @@ from pyogmios_client.exceptions import (
     EraMismatchError,
     UnknownResultError,
 )
-from pyogmios_client.models import PoolId
+from pyogmios_client.models import PoolId, EraMismatch, QueryUnavailableInCurrentEra
 from pyogmios_client.models.response_model import PoolIdsResponse
-from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
@@ -23,10 +22,9 @@ def is_pool_ids(response: PoolIdsResponse) -> bool:
     :return: True if the response is a list of pool ids, False otherwise.
     """
     result = response.result
-    if isinstance(result, List) and len(result) > 0:
-        if isinstance(result[0], PoolId):
-            return True
-    return False
+    return (
+        isinstance(result, List) and len(result) > 0 and isinstance(result[0], PoolId)
+    )
 
 
 async def pool_ids(context: InteractionContext) -> List[PoolId]:
@@ -39,15 +37,12 @@ async def pool_ids(context: InteractionContext) -> List[PoolId]:
 
     try:
         response = await query(request_args, context)
-        query_response = PoolIdsResponse(**response.dict())
+        query_response = PoolIdsResponse(**response.model_dump())
         result = query_response.result
-        if result == "QueryUnavailableInCurrentEra":
+        if isinstance(result, QueryUnavailableInCurrentEra):
             raise QueryUnavailableInCurrentEraError("poolIds")
-        elif isinstance(result, EraMismatchResult):
-            era_mismatch = result.eraMismatch
-            raise EraMismatchError(
-                str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
-            )
+        elif isinstance(result, EraMismatch):
+            raise EraMismatchError(result.queryEra.value, result.ledgerEra.value)
         elif is_pool_ids(query_response):
             return query_response.result
         else:

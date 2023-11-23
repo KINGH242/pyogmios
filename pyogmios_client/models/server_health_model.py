@@ -6,31 +6,33 @@ from pydantic import BaseModel, Field
 
 
 class LastKnownTip(BaseModel):
-    slot: int
-    hash: str
-    block_no: int = Field(..., alias="blockNo")
+    slot: Optional[int] = None
+    hash: Optional[str] = None
+    block_no: Optional[int] = Field(None, alias="blockNo")
 
 
 class RuntimeStats(BaseModel):
-    cpu_time: int = Field(..., alias="cpuTime")
-    current_heap_size: int = Field(..., alias="currentHeapSize")
-    gc_cpu_time: int = Field(..., alias="gcCpuTime")
-    max_heap_size: int = Field(..., alias="maxHeapSize")
+    cpu_time: Optional[int] = Field(None, alias="cpuTime")
+    current_heap_size: Optional[int] = Field(None, alias="currentHeapSize")
+    gc_cpu_time: Optional[int] = Field(None, alias="gcCpuTime")
+    max_heap_size: Optional[int] = Field(None, alias="maxHeapSize")
 
 
 class SessionDurations(BaseModel):
-    max: int
-    mean: int
-    min: int
+    max: Optional[int] = None
+    mean: Optional[float] = None
+    min: Optional[int] = None
 
 
 class Metrics(BaseModel):
-    active_connections: int = Field(..., alias="activeConnections")
-    runtime_stats: RuntimeStats = Field(..., alias="runtimeStats")
-    session_durations: SessionDurations = Field(..., alias="sessionDurations")
-    total_connections: int = Field(..., alias="totalConnections")
-    total_messages: int = Field(..., alias="totalMessages")
-    total_unrouted: int = Field(..., alias="totalUnrouted")
+    active_connections: Optional[int] = Field(None, alias="activeConnections")
+    runtime_stats: Optional[RuntimeStats] = Field(None, alias="runtimeStats")
+    session_durations: Optional[SessionDurations] = Field(
+        None, alias="sessionDurations"
+    )
+    total_connections: Optional[int] = Field(None, alias="totalConnections")
+    total_messages: Optional[int] = Field(None, alias="totalMessages")
+    total_unrouted: Optional[int] = Field(None, alias="totalUnrouted")
 
 
 class ServerHealth(BaseModel):

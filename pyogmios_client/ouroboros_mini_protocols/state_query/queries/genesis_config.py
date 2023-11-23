@@ -10,9 +10,10 @@ from pyogmios_client.models import (
     GenesisByron,
     GenesisShelley,
     GenesisAlonzo,
+    EraMismatch,
+    QueryUnavailableInCurrentEra,
 )
 from pyogmios_client.models.response_model import GenesisConfigResponse
-from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
@@ -26,12 +27,7 @@ def is_genesis_config(response: GenesisConfigResponse) -> bool:
     :return: True if the response is a genesis config response, False otherwise.
     """
     result = response.result
-    if isinstance(result, GenesisByron):
-        return result.initialCoinOffering is not None
-    elif isinstance(result, GenesisShelley):
-        return result.initialPools is not None
-    elif isinstance(result, GenesisAlonzo):
-        return result.costModels is not None
+    return isinstance(result, (GenesisByron, GenesisShelley, GenesisAlonzo))
 
 
 async def genesis_config(
@@ -50,17 +46,14 @@ async def genesis_config(
 
     try:
         response = await query(request_args, context)
-        query_response = GenesisConfigResponse(**response.dict())
+        query_response = GenesisConfigResponse(**response.model_dump())
         result = query_response.result
-        if result == "QueryUnavailableInCurrentEra":
+        if isinstance(result, QueryUnavailableInCurrentEra):
             raise QueryUnavailableInCurrentEraError("genesisConfig")
-        elif is_genesis_config(query_response):
+        elif isinstance(result, (GenesisByron, GenesisShelley, GenesisAlonzo)):
             return query_response.result
-        elif isinstance(result, EraMismatchResult):
-            era_mismatch = result.eraMismatch
-            raise EraMismatchError(
-                str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
-            )
+        elif isinstance(result, EraMismatch):
+            raise EraMismatchError(result.queryEra.value, result.ledgerEra.value)
         else:
             raise UnknownResultError(response)
     except Exception as error:

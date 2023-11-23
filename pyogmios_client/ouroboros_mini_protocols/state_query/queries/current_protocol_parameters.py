@@ -9,6 +9,7 @@ from pyogmios_client.models import (
     ProtocolParametersBabbage,
     ProtocolParametersAlonzo,
     ProtocolParametersShelley,
+    QueryUnavailableInCurrentEra,
 )
 from pyogmios_client.models.response_model import CurrentProtocolParametersResponse
 from pyogmios_client.models.result_models import EraMismatchResult
@@ -47,16 +48,16 @@ async def current_protocol_parameters(
 
     try:
         response = await query(request_args, context)
-        query_response = CurrentProtocolParametersResponse(**response.dict())
+        query_response = CurrentProtocolParametersResponse(**response.model_dump())
         result = query_response.result
-        if result == "QueryUnavailableInCurrentEra":
+        if isinstance(result, QueryUnavailableInCurrentEra):
             raise QueryUnavailableInCurrentEraError("currentProtocolParameters")
         elif is_protocol_parameters(query_response):
             return query_response.result
         elif isinstance(result, EraMismatchResult):
             era_mismatch = result.eraMismatch
             raise EraMismatchError(
-                str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
+                era_mismatch.queryEra.value, era_mismatch.ledgerEra.value
             )
         else:
             raise UnknownResultError(response)

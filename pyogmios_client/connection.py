@@ -29,7 +29,7 @@ class InteractionContext(BaseModel):
     connection: Connection
     socket: WebSocketApp
     after_each: Callable[[WebSocketApp, Callable[[], None]], None]
-    log_level: str
+    log_level: Optional[str] = "DEBUG"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -42,9 +42,9 @@ class InteractionContextOptions(BaseModel):
     Interaction context options model class
     """
 
-    connection_config: Optional[ConnectionConfig]
-    interaction_type: Optional[InteractionType]
-    log_level: str = "DEBUG"
+    connection_config: Optional[ConnectionConfig] = None
+    interaction_type: Optional[InteractionType] = None
+    log_level: Optional[str] = "DEBUG"
 
 
 def default_error_handler(_: WebSocketApp, error: Exception):
@@ -65,9 +65,7 @@ def default_close_handler(_: WebSocketApp, close_status_code: int, close_msg: st
     :param close_msg: The close message
     """
     if close_status_code or close_msg:
-        print(
-            f"Closed with code: {str(close_status_code)} and reason: {str(close_msg)}"
-        )
+        print(f"Closed with code: {close_status_code} and reason: {close_msg}")
     else:
         print("Closed without code or reason")
 
@@ -113,7 +111,7 @@ async def create_interaction_context(
     :return: The :class:`InteractionContext` object
     """
     interaction_context_options = options or InteractionContextOptions(
-        connection_config=None, interaction_type=InteractionType.ONE_TIME
+        interaction_type=InteractionType.ONE_TIME
     )
 
     connection = create_connection_object(interaction_context_options.connection_config)

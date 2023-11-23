@@ -29,19 +29,17 @@ async def find_intersect(
         method_name=MethodName.FIND_INTERSECT, args={"points": points}
     )
 
-    try:
-        response = await query(request_args, context)
-        find_intersect_response = FindIntersectResponse(**response.dict())
-        if find_intersect_response.methodname is not MethodName.FIND_INTERSECT:
-            raise UnknownResultError(find_intersect_response)
-        if find_intersect_response.result.IntersectionFound:
-            return find_intersect_response.result.IntersectionFound
-        elif find_intersect_response.result.IntersectionNotFound:
-            raise IntersectionNotFoundError(
-                find_intersect_response.result.IntersectionNotFound.tip
-            )
-    except IntersectionNotFoundError as e:
-        raise IntersectionNotFoundError(points) from e
+    response = await query(request_args, context)
+    find_intersect_response = FindIntersectResponse(
+        **response.model_dump(by_alias=True)
+    )
+    result = find_intersect_response.result
+    if find_intersect_response.methodname is not MethodName.FIND_INTERSECT:
+        raise UnknownResultError(find_intersect_response)
+    if result.intersection_found:
+        return result.intersection_found
+    elif result.intersection_not_found:
+        raise IntersectionNotFoundError(points)
 
 
 async def create_point_from_current_tip(context: InteractionContext) -> Point:

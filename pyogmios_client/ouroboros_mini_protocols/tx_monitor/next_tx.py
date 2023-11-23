@@ -24,7 +24,7 @@ async def next_tx(
     )
     try:
         websocket = context.socket
-        websocket.send(request.json())
+        websocket.send(request.model_dump_json())
         result = websocket.sock.recv()
         next_tx_response = NextTxResponse(**json.loads(result))
         return handle_next_tx_response(next_tx_response)

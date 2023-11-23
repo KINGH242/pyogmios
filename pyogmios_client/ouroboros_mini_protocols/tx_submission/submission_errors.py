@@ -68,8 +68,8 @@ from pyogmios_client.models import (
     SubmitTxErrorWrongPoolCertificate,
     SubmitTxErrorWrongRetirementEpoch,
     SubmitTxErrorMissingRequiredRedeemers,
+    SubmitTxErrorAddressAttributesTooLarge,
 )
-from pyogmios_client.models.generated import SubmitTxErrorAddressAttributesTooLarge
 
 
 class AddressAttributesTooLargeError(Exception):

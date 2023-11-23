@@ -3,7 +3,6 @@ This module contains the evaluate_tx function.
 
 The evaluate_tx function is used to evaluate a transaction.
 """
-import json
 from typing import Optional, List
 
 from pyogmios_client.connection import InteractionContext
@@ -43,6 +42,7 @@ from pyogmios_client.ouroboros_mini_protocols.tx_submission.evaluation_errors im
     CannotCreateEvaluationContextError,
     MissingRequiredDatumsError,
 )
+from pyogmios_client.request import send_request
 
 
 async def evaluate_tx(
@@ -67,10 +67,12 @@ async def evaluate_tx(
         },
     )
     try:
-        websocket = context.socket
-        websocket.send(request.json())
-        result = websocket.sock.recv()
-        evaluate_tx_response = EvaluateTxResponse(**json.loads(result))
+        # websocket = context.socket
+        # websocket.send(request.json())
+        # result = websocket.sock.recv()
+        evaluate_tx_response = EvaluateTxResponse.model_validate(
+            await send_request(request, context)
+        )
         return handle_evaluate_tx_response(evaluate_tx_response)
     except Exception as error:
         raise error

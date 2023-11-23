@@ -190,7 +190,7 @@ async def create_state_query_client(
         request_id = generate(size=5)
         try:
             request = RequestRelease.from_base(mirror={"requestId": str(request_id)})
-            websocket_app.send(request.json())
+            websocket_app.send(request.model_dump_json())
             result = websocket_app.sock.recv()
             release_response = ReleaseResponse(**json.loads(result))
 
@@ -386,7 +386,7 @@ async def create_state_query_client(
                 await_acquire_request = RequestAwaitAcquire.from_base(
                     mirror={"requestId": str(await_acquire_request_id)}
                 )
-                websocket_app.send(await_acquire_request.json())
+                websocket_app.send(await_acquire_request.model_dump_json())
                 await_acquire_result = websocket_app.sock.recv()
                 acquire_response = AcquireResponse(**json.loads(await_acquire_result))
 

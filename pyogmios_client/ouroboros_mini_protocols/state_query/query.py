@@ -1,4 +1,3 @@
-import json
 from typing import Any, Optional, TypeVar, Callable, Dict
 
 from nanoid import generate
@@ -9,15 +8,15 @@ from pyogmios_client.enums import MethodName
 from pyogmios_client.models.base_model import BaseModel
 from pyogmios_client.models.request_model import Request
 from pyogmios_client.models.response_model import Response, QueryResponse
-from pyogmios_client.request import send
+from pyogmios_client.request import send, send_request
 
 T = TypeVar("T")
 
 
 class RequestArgs(BaseModel):
     method_name: MethodName
-    args: Optional[Dict[str, Any]]
-    mirror: Optional[Any]
+    args: Optional[Dict[str, Any]] = None
+    mirror: Optional[Any] = None
 
 
 class ResponseHandlerArgs(BaseModel):
@@ -30,7 +29,9 @@ class ResponseArgs(BaseModel):
     handler: Callable[[ResponseHandlerArgs], T]
 
 
-async def query(request_args: RequestArgs, context: InteractionContext) -> Response:
+async def query(
+    request_args: RequestArgs, context: InteractionContext
+) -> QueryResponse | None:
     """
     Sends a query to the node.
     :param request_args: The request arguments.
@@ -38,30 +39,36 @@ async def query(request_args: RequestArgs, context: InteractionContext) -> Respo
     :return: The query response.
     """
 
-    async def to_send(websocket: WebSocketApp) -> QueryResponse | None:
+    async def to_send(_: WebSocketApp) -> QueryResponse | None:
         """
         Sends the query to the node.
-        :param websocket: The websocket to use for the query.
+        :param _: The websocket to use for the query.
         :return: The query response.
         """
         try:
             request_id = generate(size=5)
 
+            if request_args.mirror:
+                if "requestId" in request_args.mirror:
+                    request_id = request_args.mirror["requestId"]
+                    mirror = request_args.mirror
+                elif isinstance(request_args.mirror, dict):
+                    mirror = {**request_args.mirror, "requestId": request_id}
+                elif isinstance(request_args.mirror, list):
+                    mirror = {*request_args.mirror, {"requestId": request_id}}
+                else:
+                    mirror = {"mirror": request_args.mirror, "requestId": request_id}
+            else:
+                mirror = {"requestId": request_id}
+
             request = Request.from_base_request(
                 method_name=request_args.method_name,
                 args=request_args.args,
-                mirror={**request_args.mirror, "requestId": str(request_id)}
-                if request_args.mirror
-                else {"requestId": str(request_id)},
+                mirror=mirror,
             )
-            websocket.send(request.json())
-            result = websocket.sock.recv()
-            response_json = json.loads(result)
 
-            if response_json["type"] == "jsonwsp/fault":
-                raise Exception(response_json["fault"])
-
-            query_response = QueryResponse(**response_json)
+            raw_response = await send_request(request, context)
+            query_response = QueryResponse.model_validate(raw_response.model_dump())
 
             if query_response.reflection.requestId != request_id:
                 return
@@ -70,5 +77,4 @@ async def query(request_args: RequestArgs, context: InteractionContext) -> Respo
         except Exception as error:
             raise error
 
-    response = await send(to_send, context)
-    return response
+    return await send(to_send, context)

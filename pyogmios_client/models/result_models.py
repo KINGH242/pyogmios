@@ -1,5 +1,7 @@
 from typing import List, Union, Optional, Dict
 
+from pydantic import RootModel, Field, model_validator
+
 from pyogmios_client.enums import AcquireFailureDetails
 from pyogmios_client.models import (
     SubmitTxErrorUnspendableDatums,
@@ -76,6 +78,7 @@ from pyogmios_client.models import (
     SubmitTxErrorInvalidWitnesses,
     SubmitTxErrorEraMismatch,
     EraMismatch,
+    Any,
 )
 from pyogmios_client.models.base_model import BaseModel
 
@@ -89,11 +92,11 @@ class AcquireSuccess(BaseModel):
 
 
 class AcquireFailureResult(BaseModel):
-    AcquireFailure: AcquireFailure
+    acquire_failure: AcquireFailure = Field(None, alias="AcquireFailure")
 
 
 class AcquireSuccessResult(BaseModel):
-    AcquireSuccess: AcquireSuccess
+    acquire_success: AcquireSuccess = Field(None, alias="AcquireSuccess")
 
 
 class AwaitAcquired(BaseModel):
@@ -101,11 +104,11 @@ class AwaitAcquired(BaseModel):
 
 
 class AwaitAcquiredResult(BaseModel):
-    AwaitAcquired: AwaitAcquired
+    await_acquired: AwaitAcquired = Field(None, alias="AwaitAcquired")
 
 
 class EvaluationResult(BaseModel):
-    EvaluationResult: Dict[str, ExUnits]
+    evaluation_result: Dict[str, ExUnits] = Field(None, alias="EvaluationResult")
 
 
 class IntersectionFound(BaseModel):
@@ -123,16 +126,38 @@ class RollBackward(BaseModel):
 
 
 class RollForward(BaseModel):
-    block: Block
+    block: Block = Field(discriminator="block_type")
     tip: TipOrOrigin
+
+    @model_validator(mode="before")
+    @classmethod
+    def block_type_coerce(cls, data: Any) -> Any:
+        if data["tip"] == "origin":
+            return data
+        block_keys = set(data["block"].keys())
+
+        if "babbage" in block_keys:
+            data["block"]["block_type"] = "babbage"
+        elif "alonzo" in block_keys:
+            data["block"]["block_type"] = "alonzo"
+        elif "allegra" in block_keys:
+            data["block"]["block_type"] = "allegra"
+        elif "mary" in block_keys:
+            data["block"]["block_type"] = "mary"
+        elif "shelley" in block_keys:
+            data["block"]["block_type"] = "shelley"
+        elif "byron" in block_keys:
+            data["block"]["block_type"] = "byron"
+
+        return data
 
 
 class RollBackwardResult(BaseModel):
-    RollBackward: RollBackward
+    roll_backward: RollBackward = Field(alias="RollBackward")
 
 
 class RollForwardResult(BaseModel):
-    RollForward: RollForward
+    roll_forward: RollForward = Field(alias="RollForward")
 
 
 class SubmitSuccess(BaseModel):
@@ -140,15 +165,15 @@ class SubmitSuccess(BaseModel):
 
 
 class ReleaseResponseResult(BaseModel):
-    Released = "Released"
+    released: str = Field("Released", alias="Released")
 
 
 class EraMismatchResult(BaseModel):
-    eraMismatch = EraMismatch
+    eraMismatch: Optional[EraMismatch] = None
 
 
-class SubmitTxError(BaseModel):
-    __root__: List[
+class SubmitTxError(RootModel):
+    root: List[
         Union[
             SubmitTxErrorEraMismatch,
             SubmitTxErrorInvalidWitnesses,
@@ -222,19 +247,29 @@ class SubmitTxError(BaseModel):
 
 
 class Result(BaseModel):
-    AcquireFailure: Optional[AcquireFailure]
-    AcquireSuccess: Optional[AcquireSuccess]
-    AwaitAcquired: Optional[AwaitAcquired]
-    EvaluationResult: Optional[EvaluationResult]
-    IntersectionFound: Optional[IntersectionFound]
-    IntersectionNotFound: Optional[IntersectionNotFound]
-    Released: Optional[str]
-    RollBackward: Optional[RollBackward]
-    RollForward: Optional[RollForward]
-    SubmitSuccess: Optional[SubmitSuccess]
-    SubmitTxError: Optional[SubmitTxError]
+    acquire_failure: Optional[AcquireFailure] = Field(None, alias="AcquireFailure")
+    acquire_success: Optional[AcquireSuccess] = Field(None, alias="AcquireSuccess")
+    await_acquired: Optional[AwaitAcquired] = Field(None, alias="AwaitAcquired")
+    evaluation_result: Optional[EvaluationResult] = Field(
+        None, alias="EvaluationResult"
+    )
+    intersection_found: Optional[IntersectionFound] = Field(
+        None, alias="IntersectionFound"
+    )
+    intersection_not_found: Optional[IntersectionNotFound] = Field(
+        None, alias="IntersectionNotFound"
+    )
+    released: Optional[str] = Field(None, alias="Released")
+    roll_backward: Optional[RollBackward] = Field(None, alias="RollBackward")
+    roll_forward: Optional[RollForward] = Field(None, alias="RollForward")
+    submit_success: Optional[SubmitSuccess] = Field(None, alias="SubmitSuccess")
+    submit_tx_error: Optional[SubmitTxError] = Field(None, alias="SubmitTxError")
 
 
 class FindIntersectResult(BaseModel):
-    IntersectionFound: Optional[IntersectionFound]
-    IntersectionNotFound: Optional[IntersectionNotFound]
+    intersection_found: Optional[IntersectionFound] = Field(
+        None, alias="IntersectionFound"
+    )
+    intersection_not_found: Optional[IntersectionNotFound] = Field(
+        None, alias="IntersectionNotFound"
+    )

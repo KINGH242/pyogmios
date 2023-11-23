@@ -5,7 +5,8 @@ from enum import Enum
 from types import UnionType
 from typing import Optional, Dict, List, Union
 
-from pydantic import conint, Field, constr, confloat, AnyUrl
+from pydantic import conint, Field, constr, confloat, AnyUrl, RootModel
+from typing_extensions import Annotated, Literal
 
 from pyogmios_client.enums import (
     RewardPot,
@@ -22,8 +23,8 @@ from pyogmios_client.models.base_model import BaseModel
 Slot = int
 
 
-class Origin(BaseModel):
-    __root__: str = "origin"
+class Origin(RootModel):
+    root: str = "origin"
 
 
 BlockNo = int
@@ -31,42 +32,45 @@ BlockNo = int
 Metadatum: UnionType = int | str | bytes | List | Dict
 
 
-class Address(BaseModel):
-    __root__: constr(regex=r"[1-9A-HJ-NP-Za-km-z]*") = Field(
-        ...,
-        description="A Cardano address (either legacy format or new format).",
-        examples=[
-            "addr1q9d34spgg2kdy47n82e7x9pdd6vql6d2engxmpj20jmhuc2047yqd4xnh7u6u5jp4t0q3fkxzckph4tgnzvamlu7k5psuahzcp",
-            "DdzFFzCqrht8mbSTZHqpM2u4HeND2mdspsaBhdQ1BowPJBMzbDeBMeKgqdoKqo1D4sdPusEdZJVrFJRBBxX1jUEofNDYCJSZLg8MkyCE",
-        ],
-    )
+class Address(RootModel):
+    root: Annotated[
+        str,
+        Field(
+            pattern=r"[1-9A-HJ-NP-Za-km-z]*",
+            description="A Cardano address (either legacy format or new format).",
+            examples=[
+                "addr1q9d34spgg2kdy47n82e7x9pdd6vql6d2engxmpj20jmhuc2047yqd4xnh7u6u5jp4t0q3fkxzckph4tgnzvamlu7k5psuahzcp",
+                "DdzFFzCqrht8mbSTZHqpM2u4HeND2mdspsaBhdQ1BowPJBMzbDeBMeKgqdoKqo1D4sdPusEdZJVrFJRBBxX1jUEofNDYCJSZLg8MkyCE",
+            ],
+        ),
+    ]
 
 
-class AddressAttributes(BaseModel):
-    __root__: str = Field(
+class AddressAttributes(RootModel):
+    root: str = Field(
         ...,
         description="Extra attributes carried by Byron addresses (network magic and/or HD payload).",
     )
 
 
-class AssetQuantity(BaseModel):
-    __root__: int = Field(
+class AssetQuantity(RootModel):
+    root: int = Field(
         ..., description="A number of asset, can be negative went burning assets."
     )
 
 
-class BlockNo(BaseModel):
-    __root__: conint(ge=0, le=18446744073709552999) = Field(
+class BlockNo(RootModel):
+    root: conint(ge=0, le=18446744073709552999) = Field(
         ..., description="A block number, the i-th block to be minted is number i."
     )
 
 
-class BlockNoOrOrigin(BaseModel):
-    __root__: Union[BlockNo, Origin]
+class BlockNoOrOrigin(RootModel):
+    root: Union[BlockNo, Origin]
 
 
-class BlockSize(BaseModel):
-    __root__: conint(ge=0, le=18446744073709552999) = Field(
+class BlockSize(RootModel):
+    root: conint(ge=0, le=18446744073709552999) = Field(
         ..., description="The size of the block in bytes."
     )
 
@@ -137,26 +141,26 @@ class CertifiedVrf(BaseModel):
     output: Optional[VrfOutput] = None
 
 
-class ChainCode(BaseModel):
-    __root__: str = Field(
+class ChainCode(RootModel):
+    root: str = Field(
         ..., description="An Ed25519-BIP32 chain-code for key deriviation."
     )
 
 
-class CostModel(BaseModel):
-    __root__: Optional[Dict[str, Int64]] = None
+class CostModel(RootModel):
+    root: Optional[Dict[str, Int64]] = None
 
 
-class CostModels(BaseModel):
-    __root__: Optional[Dict[str, CostModel]] = None
+class CostModels(RootModel):
+    root: Optional[Dict[str, CostModel]] = None
 
 
-class Datum(BaseModel):
-    __root__: str
+class Datum(RootModel):
+    root: str
 
 
-class DelegationsAndRewardsByAccounts(BaseModel):
-    __root__: Optional[Dict[str, DelegationsAndRewards]] = None
+class DelegationsAndRewardsByAccounts(RootModel):
+    root: Optional[Dict[str, DelegationsAndRewards]] = None
 
 
 class DelegationsAndRewards(BaseModel):
@@ -167,16 +171,16 @@ class DelegationsAndRewards(BaseModel):
 DigestBlake2BCredential = str
 
 
-class DigestBlake2bAuxiliaryDataBody(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DigestBlake2bAuxiliaryDataBody(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of an 'AuxiliaryDataBody', serialised as CBOR.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class DigestBlake2bBlockBody(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DigestBlake2bBlockBody(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of an era-independent block body.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
@@ -187,100 +191,100 @@ class HeaderEnum(Enum):
     genesis = "genesis"
 
 
-class DigestBlake2bBlockHeader(BaseModel):
-    __root__: Union[constr(min_length=64, max_length=64), HeaderEnum]
+class DigestBlake2bBlockHeader(RootModel):
+    root: Union[constr(min_length=64, max_length=64), HeaderEnum]
 
 
-class DigestBlake2bCredential(BaseModel):
-    __root__: constr(min_length=56, max_length=56) = Field(
+class DigestBlake2bCredential(RootModel):
+    root: constr(min_length=56, max_length=56) = Field(
         ...,
         description="A Blake2b 28-byte digest of a verification key or a script.",
         examples=["90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3"],
     )
 
 
-class DigestBlake2bDatum(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DigestBlake2bDatum(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a serialized datum, CBOR-encoded.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class DigestBlake2bMerkleRoot(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DigestBlake2bMerkleRoot(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a Merkle tree (or all block's transactions) root hash.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class DigestBlake2bNonce(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DigestBlake2bNonce(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of some arbitrary to make a nonce.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class DigestBlake2bPoolMetadata(BaseModel):
-    __root__: str = Field(
+class DigestBlake2bPoolMetadata(RootModel):
+    root: str = Field(
         ...,
         description="A Blake2b 32-byte digest of stake pool (canonical) JSON metadata.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class DigestBlake2bScript(BaseModel):
-    __root__: constr(min_length=56, max_length=56) = Field(
+class DigestBlake2bScript(RootModel):
+    root: constr(min_length=56, max_length=56) = Field(
         ...,
         description="A Blake2b 32-byte digest of a phase-1 or phase-2 script, CBOR-encoded.",
         examples=["90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3"],
     )
 
 
-class DigestBlake2bScriptIntegrity(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DigestBlake2bScriptIntegrity(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a script-integrity hash (i.e redeemers, datums and cost model, CBOR-encoded).",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class DigestBlake2bVerificationKey(BaseModel):
-    __root__: constr(min_length=56) = Field(
+class DigestBlake2bVerificationKey(RootModel):
+    root: constr(min_length=56) = Field(
         ...,
         description="A Blake2b 28-byte digest of an Ed25519 verification key.",
         examples=["90181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d3"],
     )
 
 
-class DigestBlake2bVrfVerificationKey(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DigestBlake2bVrfVerificationKey(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a VRF verification key.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class HeaderHash(BaseModel):
-    __root__: DigestBlake2bBlockHeader
+class HeaderHash(RootModel):
+    root: DigestBlake2bBlockHeader
 
 
-class Nonce(BaseModel):
-    __root__: NonceEnum | DigestBlake2bNonce
+class Nonce(RootModel):
+    root: NonceEnum | DigestBlake2bNonce
 
 
-class DlgPayload(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class DlgPayload(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a Byron delegation payload, CBOR-encoded.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class Epoch(BaseModel):
-    __root__: conint(ge=0, le=18446744073709552000) = Field(
+class Epoch(RootModel):
+    root: conint(ge=0, le=18446744073709552000) = Field(
         ..., description="An epoch number or length."
     )
 
@@ -290,40 +294,40 @@ class ExUnits(BaseModel):
     steps: UInt64
 
 
-class GenesisVerificationKey(BaseModel):
-    __root__: constr(min_length=128, max_length=128) = Field(
+class GenesisVerificationKey(RootModel):
+    root: constr(min_length=128, max_length=128) = Field(
         ...,
         description="An Ed25519-BIP32 Byron genesis delegate verification key with chain-code.",
     )
 
 
-class IssuerVrfVerificationKey(BaseModel):
-    __root__: str = Field(..., description="A key identifying a block issuer.")
+class IssuerVrfVerificationKey(RootModel):
+    root: str = Field(..., description="A key identifying a block issuer.")
 
 
-class IssuerSignature(BaseModel):
-    __root__: str = Field(
+class IssuerSignature(RootModel):
+    root: str = Field(
         ...,
         description="Signature proving a block was issued by a given issuer VRF key.",
     )
 
 
-class Int64(BaseModel):
-    __root__: conint(ge=-9223372036854775808, le=9223372036854775807)
+class Int64(RootModel):
+    root: conint(ge=-9223372036854775808, le=9223372036854775807)
 
 
-class KesVerificationKey(BaseModel):
-    __root__: str
+class KesVerificationKey(RootModel):
+    root: str
 
 
-class Lovelace(BaseModel):
-    __root__: int = Field(
+class Lovelace(RootModel):
+    root: int = Field(
         ..., description="A number of lovelace, possibly large when summed up."
     )
 
 
-class LovelaceDelta(BaseModel):
-    __root__: conint(ge=-9223372036854775808, le=9223372036854775807) = Field(
+class LovelaceDelta(RootModel):
+    root: conint(ge=-9223372036854775808, le=9223372036854775807) = Field(
         ...,
         description="An amount, possibly negative, in Lovelace (1e6 Lovelace = 1 Ada).",
     )
@@ -335,32 +339,32 @@ class MempoolSizeAndCapacity(BaseModel):
     numberOfTxs: UInt32
 
 
-class NetworkMagic(BaseModel):
-    __root__: conint(ge=0, le=4294967296) = Field(
+class NetworkMagic(RootModel):
+    root: conint(ge=0, le=4294967296) = Field(
         ...,
         description="A magic number for telling networks apart. (e.g. 764824073)",
         examples=[764824073],
     )
 
 
-class NonMyopicMemberRewards(BaseModel):
-    __root__: Optional[Dict[str, Dict[str, confloat(ge=0.0)]]] = None
+class NonMyopicMemberRewards(RootModel):
+    root: Optional[Dict[str, Dict[str, confloat(ge=0.0)]]] = None
 
 
-class Null(BaseModel):
-    __root__: None
+class Null(RootModel):
+    root: None
 
 
-class NullableRatio(BaseModel):
-    __root__: Ratio | Null
+class NullableRatio(RootModel):
+    root: Ratio | Null
 
 
-class NullableUInt64(BaseModel):
-    __root__: UInt64 | Null
+class NullableUInt64(RootModel):
+    root: UInt64 | Null
 
 
-class ProtocolMagicId(BaseModel):
-    __root__: conint(ge=0, le=4294967295) = Field(..., examples=[764824073])
+class ProtocolMagicId(RootModel):
+    root: conint(ge=0, le=4294967295) = Field(..., examples=[764824073])
 
 
 class ProtocolVersion(BaseModel):
@@ -369,19 +373,22 @@ class ProtocolVersion(BaseModel):
     patch: Optional[UInt32] = None
 
 
-class PoolId(BaseModel):
-    __root__: constr(regex=r"^pool1[0-9a-z]*$") = Field(
-        ...,
-        description="A Blake2b 32-byte digest of a pool's verification key.",
-        examples=[
-            "pool1qqqqpanw9zc0rzh0yp247nzf2s35uvnsm7aaesfl2nnejaev0uc",
-            "pool1qqqqqdk4zhsjuxxd8jyvwncf5eucfskz0xjjj64fdmlgj735lr9",
-        ],
-    )
+class PoolId(RootModel):
+    root: Annotated[
+        str,
+        Field(
+            pattern=r"^pool1[0-9a-z]*$",
+            description="A Blake2b 32-byte digest of a pool's verification key.",
+            examples=[
+                "pool1qqqqpanw9zc0rzh0yp247nzf2s35uvnsm7aaesfl2nnejaev0uc",
+                "pool1qqqqqdk4zhsjuxxd8jyvwncf5eucfskz0xjjj64fdmlgj735lr9",
+            ],
+        ),
+    ]
 
 
-class QueryUnavailableInCurrentEra(BaseModel):
-    __root__: str = "QueryUnavailableInCurrentEra"
+class QueryUnavailableInCurrentEra(RootModel):
+    root: str = "QueryUnavailableInCurrentEra"
 
 
 class Prices(BaseModel):
@@ -389,12 +396,15 @@ class Prices(BaseModel):
     steps: Ratio
 
 
-class Ratio(BaseModel):
-    __root__: constr(regex=r"^-?[0-9]+/[0-9]+$") = Field(
-        ...,
-        description="A ratio of two integers, to express exact fractions.",
-        examples=["2/3", "7/8"],
-    )
+class Ratio(RootModel):
+    root: Annotated[
+        str,
+        Field(
+            pattern=r"^-?[0-9]+/[0-9]+$",
+            description="A ratio of two integers, to express exact fractions.",
+            examples=["2/3", "7/8"],
+        ),
+    ]
 
 
 class Redeemer(BaseModel):
@@ -402,31 +412,34 @@ class Redeemer(BaseModel):
     executionUnits: ExUnits
 
 
-class RedeemerData(BaseModel):
-    __root__: str = Field(..., description="Plutus data, CBOR-serialised.")
+class RedeemerData(RootModel):
+    root: str = Field(..., description="Plutus data, CBOR-serialised.")
 
 
-class RedeemerPointer(BaseModel):
-    __root__: constr(regex=r"^(spend|mint|certificate|withdrawal):[0-9]+$")
+class RedeemerPointer(RootModel):
+    root: Annotated[str, Field(pattern=r"^(spend|mint|certificate|withdrawal):[0-9]+$")]
 
 
-class RelativeTime(BaseModel):
-    __root__: confloat(ge=0.0) = Field(
+class RelativeTime(RootModel):
+    root: confloat(ge=0.0) = Field(
         ...,
         description="A time in seconds relative to another one (typically, system start or era start). Starting from v5.5.4, this can be a floating number. Before v5.5.4, the floating value would be rounded to the nearest second.",
     )
 
 
-class Rewards(BaseModel):
-    __root__: Optional[Dict[str, LovelaceDelta]] = None
+class Rewards(RootModel):
+    root: Optional[Dict[str, LovelaceDelta]] = None
 
 
-class RewardAccount(BaseModel):
-    __root__: constr(regex=r"^stake(_test)?1[0-9a-z]+$") = Field(
-        ...,
-        description="A reward account, also known as 'stake address'.",
-        examples=["stake1ux7pt9adw8z46tgqn2f8fvurrhk325gcm4mf75mkmmxpx6gae9mzv"],
-    )
+class RewardAccount(RootModel):
+    root: Annotated[
+        str,
+        Field(
+            pattern=r"^stake(_test)?1[0-9a-z]+$",
+            description="A reward account, also known as 'stake address'.",
+            examples=["stake1ux7pt9adw8z46tgqn2f8fvurrhk325gcm4mf75mkmmxpx6gae9mzv"],
+        ),
+    ]
 
 
 class SoftwareVersion(BaseModel):
@@ -434,16 +447,19 @@ class SoftwareVersion(BaseModel):
     number: UInt32
 
 
-class StakeAddress(BaseModel):
-    __root__: constr(regex=r"^(stake|stake_test)1[0-9a-z]*$") = Field(
-        ...,
-        description="A stake address (a.k.a reward account)",
-        examples=["stake179kzq4qulejydh045yzxwk4ksx780khkl4gdve9kzwd9vjcek9u8h"],
-    )
+class StakeAddress(RootModel):
+    root: Annotated[
+        str,
+        Field(
+            pattern=r"^(stake|stake_test)1[0-9a-z]*$",
+            description="A stake address (a.k.a reward account)",
+            examples=["stake179kzq4qulejydh045yzxwk4ksx780khkl4gdve9kzwd9vjcek9u8h"],
+        ),
+    ]
 
 
-class Signature(BaseModel):
-    __root__: str = Field(
+class Signature(RootModel):
+    root: str = Field(
         ...,
         description="A signature coming from an Ed25519 or Ed25519-BIP32 signing key.",
     )
@@ -460,30 +476,30 @@ class TxFeePolicy(BaseModel):
     constant: float
 
 
-class TxId(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class TxId(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ..., description="A Blake2b 32-byte digest of a transaction body, CBOR-encoded."
     )
 
 
-class UInt32(BaseModel):
-    __root__: conint(ge=0, le=4294967295)
+class UInt32(RootModel):
+    root: conint(ge=0, le=4294967295)
 
 
-class UInt64(BaseModel):
-    __root__: conint(ge=0, le=18446744073709552999)
+class UInt64(RootModel):
+    root: conint(ge=0, le=18446744073709552999)
 
 
-class UpdatePayload(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class UpdatePayload(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a Byron update payload, CBOR-encoded.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class UtcTime(BaseModel):
-    __root__: datetime
+class UtcTime(RootModel):
+    root: datetime
 
 
 class Value(BaseModel):
@@ -491,34 +507,32 @@ class Value(BaseModel):
     assets: Optional[Dict[str, AssetQuantity]] = None
 
 
-class VerificationKey(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
-        ..., description="An Ed25519 verification key."
-    )
+class VerificationKey(RootModel):
+    root: str = Field(..., description="An Ed25519 verification key.")
 
 
-class VrfOutput(BaseModel):
-    __root__: str
+class VrfOutput(RootModel):
+    root: str
 
 
-class VrfProof(BaseModel):
-    __root__: str
+class VrfProof(RootModel):
+    root: str
 
 
-class Withdrawals(BaseModel):
-    __root__: Optional[Dict[str, Lovelace]] = None
+class Withdrawals(RootModel):
+    root: Optional[Dict[str, Lovelace]] = None
 
 
-class WitnessHash(BaseModel):
-    __root__: constr(min_length=64, max_length=64) = Field(
+class WitnessHash(RootModel):
+    root: constr(min_length=64, max_length=64) = Field(
         ...,
         description="A Blake2b 32-byte digest of a Byron transaction witness set, CBOR-encoded.",
         examples=["c248757d390181c517a5beadc9c3fe64bf821d3e889a963fc717003ec248757d"],
     )
 
 
-class ScriptNative(BaseModel):
-    __root__: DigestBlake2bVerificationKey | Any | All | NOf | ExpiresAt | StartsAt = Field(
+class ScriptNative(RootModel):
+    root: DigestBlake2bVerificationKey | Any | All | NOf | ExpiresAt | StartsAt = Field(
         ...,
         description="A phase-1 monetary script. Timelocks constraints are only supported since Allegra.",
         examples=[
@@ -533,8 +547,8 @@ class ScriptNative(BaseModel):
     )
 
 
-class ScriptPlutus(BaseModel):
-    __root__: str = Field(
+class ScriptPlutus(RootModel):
+    root: str = Field(
         ...,
         description="A phase-2 Plutus script; or said differently, a serialized Plutus-core program.",
     )
@@ -548,8 +562,8 @@ class Any(BaseModel):
     any: List[ScriptNative]
 
 
-class NOf(BaseModel):
-    __root__: Dict[str, List[ScriptNative]]
+class NOf(RootModel):
+    root: Dict[str, List[ScriptNative]]
 
 
 class ExpiresAt(BaseModel):
@@ -761,10 +775,12 @@ class ProtocolParametersShelley(BaseModel):
 
 class Allegra(BaseModel):
     allegra: BlockAllegra
+    block_type: Literal["allegra"]
 
 
 class Alonzo(BaseModel):
     alonzo: BlockAlonzo
+    block_type: Literal["alonzo"]
 
 
 class AuxiliaryData(BaseModel):
@@ -779,6 +795,7 @@ class AuxiliaryDataBody(BaseModel):
 
 class Babbage(BaseModel):
     babbage: BlockBabbage
+    block_type: Literal["babbage"]
 
 
 class BlockAllegra(BaseModel):
@@ -824,6 +841,7 @@ class BlockSignature(BaseModel):
 
 class Byron(BaseModel):
     byron: BlockByron
+    block_type: Literal["byron"]
 
 
 class EpochBoundaryBlock(BaseModel):
@@ -848,7 +866,7 @@ class Header(BaseModel):
     opCert: OpCert
     protocolVersion: ProtocolVersion
     signature: IssuerSignature
-    vrfInput: CertifiedVrf
+    vrfInput: Optional[CertifiedVrf] = None
 
 
 class Vote(BaseModel):
@@ -859,6 +877,7 @@ class Vote(BaseModel):
 
 class Mary(BaseModel):
     mary: BlockMary
+    block_type: Literal["mary"]
 
 
 class Point(BaseModel):
@@ -883,6 +902,7 @@ class RollForward(BaseModel):
 
 class Shelley(BaseModel):
     shelley: BlockShelley
+    block_type: Literal["shelley"]
 
 
 class StandardBlock(BaseModel):
@@ -1245,16 +1265,16 @@ class SubmitTxErrorWrongRetirementEpoch(BaseModel):
     wrongRetirementEpoch: WrongRetirementEpoch
 
 
-class UInt8(BaseModel):
-    __root__: conint(ge=0, le=255)
+class UInt8(RootModel):
+    root: conint(ge=0, le=255)
 
 
 class SubmitTxErrorStakeKeyAlreadyRegistered(BaseModel):
     stakeKeyAlreadyRegistered: DigestBlake2bVerificationKey
 
 
-class PolicyId(BaseModel):
-    __root__: DigestBlake2bScript
+class PolicyId(RootModel):
+    root: DigestBlake2bScript
 
 
 class PoolCostTooSmall(BaseModel):
@@ -1403,8 +1423,8 @@ class ScriptPurposeWithdrawal(BaseModel):
     withdrawal: RewardAccount
 
 
-class ScriptPurpose(BaseModel):
-    __root__: Union[
+class ScriptPurpose(RootModel):
+    root: Union[
         ScriptPurposeSpend,
         ScriptPurposeMint,
         ScriptPurposeCertificate,
@@ -1527,8 +1547,8 @@ class InvalidEntityRewardAccount(BaseModel):
     entity: InvalidEntityEntity = InvalidEntityEntity.REWARD_ACCOUNT
 
 
-class InvalidEntity(BaseModel):
-    __root__: Union[
+class InvalidEntity(RootModel):
+    root: Union[
         InvalidEntityAddress, InvalidEntityPoolRegistration, InvalidEntityRewardAccount
     ]
 
@@ -1644,15 +1664,15 @@ class EraSummary(BaseModel):
     parameters: EraParameters
 
 
-class SlotLength(BaseModel):
-    __root__: float = Field(
+class SlotLength(RootModel):
+    root: float = Field(
         ...,
         description="A slot length, in seconds. Starting from v5.5.4, this can be a floating number. Before v5.5.4, the floating value would be rounded to the nearest second.",
     )
 
 
-class SafeZone(BaseModel):
-    __root__: conint(ge=0, le=18446744073709552999) = Field(
+class SafeZone(RootModel):
+    root: conint(ge=0, le=18446744073709552999) = Field(
         ...,
         description="Number of slots from the tip of the ledger in which it is guaranteed that no hard fork can take place. This should be (at least) the number of slots in which we are guaranteed to have k blocks.",
     )
@@ -1669,8 +1689,8 @@ class PoolRank(BaseModel):
     estimatedHitRate: float
 
 
-class PoolsRanking(BaseModel):
-    __root__: Optional[Dict[str, PoolRank]] = None
+class PoolsRanking(RootModel):
+    root: Optional[Dict[str, PoolRank]] = None
 
 
 GenesisConfig = GenesisByron | GenesisShelley | GenesisAlonzo
@@ -1771,11 +1791,15 @@ class RewardsProvenanceNew(BaseModel):
     desiredNumberOfPools: conint(ge=0, le=18446744073709552999) = Field(
         ..., description="Desired number of stake pools."
     )
-    poolInfluence: constr(regex=r"^-?[0-9]+/[0-9]+$") = Field(
-        ...,
-        description="Influence of the pool owner's pledge on rewards, as a ratio of two integers.",
-        examples=["2/3", "7/8"],
-    )
+    poolInfluence: Annotated[
+        str,
+        Field(
+            pattern=r"^-?[0-9]+/[0-9]+$",
+            description="Influence of the pool owner's pledge on rewards, "
+            "as a ratio of two integers.",
+            examples=["2/3", "7/8"],
+        ),
+    ]
     totalRewards: int = Field(
         ..., description="Total rewards available for the given epoch."
     )
@@ -1790,8 +1814,8 @@ class PoolDistribution(BaseModel):
     vrf: DigestBlake2bVrfVerificationKey
 
 
-class PoolDistributions(BaseModel):
-    __root__: Optional[Dict[str, PoolDistribution]] = None
+class PoolDistributions(RootModel):
+    root: Optional[Dict[str, PoolDistribution]] = None
 
 
 class EvaluationResult(BaseModel):
@@ -1832,8 +1856,8 @@ class IllFormedExecutionBudget(BaseModel):
     illFormedExecutionBudget: Union[ExUnits, Null]
 
 
-class ScriptFailure(BaseModel):
-    __root__: List[
+class ScriptFailure(RootModel):
+    root: List[
         Union[
             ExtraRedeemers,
             MissingRequiredDatums,
@@ -1885,37 +1909,37 @@ class EvaluationFailure(BaseModel):
     ]
 
 
-AuxiliaryData.update_forward_refs()
-AuxiliaryDataBody.update_forward_refs()
-BlockAllegra.update_forward_refs()
-BlockAlonzo.update_forward_refs()
-BlockBabbage.update_forward_refs()
-BlockMary.update_forward_refs()
-BlockProof.update_forward_refs()
-BlockShelley.update_forward_refs()
-Byron.update_forward_refs()
-CostModel.update_forward_refs()
-DelegationsAndRewards.update_forward_refs()
-DelegationsAndRewardsByAccounts.update_forward_refs()
-EpochBoundaryBlock.update_forward_refs()
-EraSummary.update_forward_refs()
-ExUnits.update_forward_refs()
-GenesisAlonzo.update_forward_refs()
-GenesisByron.update_forward_refs()
-GenesisShelley.update_forward_refs()
-NullableRatio.update_forward_refs()
-NullableUInt64.update_forward_refs()
-Prices.update_forward_refs()
-ProtocolVersion.update_forward_refs()
-RollForward.update_forward_refs()
-StandardBlock.update_forward_refs()
-StandardBlockBody.update_forward_refs()
-SoftwareVersion.update_forward_refs()
-StandardBlockBodyUpdatePayload.update_forward_refs()
-SubmitTxErrorCollateralIsScript.update_forward_refs()
-TxBabbage.update_forward_refs()
-TxByron.update_forward_refs()
-TxByronBody.update_forward_refs()
-TxOut.update_forward_refs()
-TxWitnessVk.update_forward_refs()
-Witness.update_forward_refs()
+AuxiliaryData.model_rebuild()
+AuxiliaryDataBody.model_rebuild()
+BlockAllegra.model_rebuild()
+BlockAlonzo.model_rebuild()
+BlockBabbage.model_rebuild()
+BlockMary.model_rebuild()
+BlockProof.model_rebuild()
+BlockShelley.model_rebuild()
+Byron.model_rebuild()
+CostModel.model_rebuild()
+DelegationsAndRewards.model_rebuild()
+DelegationsAndRewardsByAccounts.model_rebuild()
+EpochBoundaryBlock.model_rebuild()
+EraSummary.model_rebuild()
+ExUnits.model_rebuild()
+GenesisAlonzo.model_rebuild()
+GenesisByron.model_rebuild()
+GenesisShelley.model_rebuild()
+NullableRatio.model_rebuild()
+NullableUInt64.model_rebuild()
+Prices.model_rebuild()
+ProtocolVersion.model_rebuild()
+RollForward.model_rebuild()
+StandardBlock.model_rebuild()
+StandardBlockBody.model_rebuild()
+SoftwareVersion.model_rebuild()
+StandardBlockBodyUpdatePayload.model_rebuild()
+SubmitTxErrorCollateralIsScript.model_rebuild()
+TxBabbage.model_rebuild()
+TxByron.model_rebuild()
+TxByronBody.model_rebuild()
+TxOut.model_rebuild()
+TxWitnessVk.model_rebuild()
+Witness.model_rebuild()

@@ -8,7 +8,7 @@ from pyogmios_client.models.base_model import BaseModel
 
 
 class BaseRequestResponse(ABC, BaseModel):
-    type: Optional[Type]
-    version: Optional[Version]
-    servicename: Optional[ServiceName]
-    methodname: Optional[MethodName]
+    type: Optional[Type] = None
+    version: Optional[Version] = None
+    servicename: Optional[ServiceName] = None
+    methodname: Optional[MethodName] = None

@@ -10,6 +10,7 @@ from pyogmios_client.exceptions import (
 from pyogmios_client.models import (
     DigestBlake2BCredential,
     DelegationsAndRewardsByAccounts,
+    QueryUnavailableInCurrentEra,
 )
 from pyogmios_client.models.response_model import DelegationsAndRewardsResponse
 from pyogmios_client.models.result_models import EraMismatchResult
@@ -17,21 +18,6 @@ from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
 )
-
-
-def is_delegations_and_rewards_by_accounts(
-    response: DelegationsAndRewardsResponse,
-) -> bool:
-    """
-    Check if the given response is a DelegationsAndRewardsByAccounts.
-    :param response: The response to check.
-    :return: True if the response is a DelegationsAndRewardsByAccounts, False otherwise.
-    """
-    result = response.result
-    if len(result.__root__) <= 0:
-        return True
-    sample = list(result.__root__.values())[0]
-    return sample.delegate is not None and sample.rewards is not None
 
 
 async def delegations_and_rewards(
@@ -50,16 +36,16 @@ async def delegations_and_rewards(
 
     try:
         response = await query(request_args, context)
-        query_response = DelegationsAndRewardsResponse(**response.dict())
+        query_response = DelegationsAndRewardsResponse(**response.model_dump())
         result = query_response.result
-        if result == "QueryUnavailableInCurrentEra":
+        if isinstance(result, QueryUnavailableInCurrentEra):
             raise QueryUnavailableInCurrentEraError("delegationsAndRewards")
-        elif is_delegations_and_rewards_by_accounts(query_response):
+        elif isinstance(result, DelegationsAndRewardsByAccounts):
             return query_response.result
         elif isinstance(result, EraMismatchResult):
             era_mismatch = result.eraMismatch
             raise EraMismatchError(
-                str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
+                era_mismatch.queryEra.value, era_mismatch.ledgerEra.value
             )
         else:
             raise UnknownResultError(response)

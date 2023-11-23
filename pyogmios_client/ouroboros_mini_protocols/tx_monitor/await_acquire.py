@@ -22,7 +22,7 @@ async def await_acquire(context: InteractionContext, args: dict) -> Slot:
     )
     try:
         websocket = context.socket
-        websocket.send(request.json())
+        websocket.send(request.model_dump_json())
         result = websocket.sock.recv()
         await_acquire_response = AwaitAcquireResponse(**json.loads(result))
         return handle_await_acquire_response(await_acquire_response)

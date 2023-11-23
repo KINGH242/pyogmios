@@ -35,7 +35,7 @@ async def proposed_protocol_parameters(
 
     try:
         response = await query(request_args, context)
-        query_response = PoolsRankingResponse(**response.dict())
+        query_response = PoolsRankingResponse(**response.model_dump())
         result = query_response.result
         if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("proposedProtocolParameters")

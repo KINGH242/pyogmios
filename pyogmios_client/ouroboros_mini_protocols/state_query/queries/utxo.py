@@ -47,7 +47,7 @@ async def utxo(
 
     try:
         response = await query(request_args, context)
-        query_response = UtxoResponse(**response.dict())
+        query_response = UtxoResponse(**response.model_dump())
         result = query_response.result
         if result == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("utxo")

@@ -21,7 +21,7 @@ async def has_tx(context: InteractionContext, tx_id: TxId) -> bool:
     )
     try:
         websocket = context.socket
-        websocket.send(request.json())
+        websocket.send(request.model_dump_json())
         result = websocket.sock.recv()
         has_tx_response = HasTxResponse(**json.loads(result))
         return handle_has_tx_response(has_tx_response)

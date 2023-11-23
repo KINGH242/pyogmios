@@ -19,18 +19,18 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.8.10, <3.12"
 requests = "^2.31.0"
-pydantic = "^1.10.8"
-aiohttp = "^3.8.4"
-aiodns = "^3.0.0"
-websocket-client = "^1.5.2"
+pydantic = "^2.5.1"
+aiohttp = "^3.9.0"
+aiodns = "^3.1.1"
+websocket-client = "^1.6.4"
 promise = "^2.3"
 nanoid = "^2.0.0"
-pyee = "^11.0.0"
+pyee = "^11.0.1"
 rel = "^0.4.9"
 
 
 [tool.poetry.group.dev.dependencies]
-datamodel-code-generator = "^0.19.0"
+datamodel-code-generator = "^0.24.2"
 black = "^22.6.0"
 commitizen = "^2.32.5"
 coverage = "^6.4.4"

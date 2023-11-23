@@ -71,11 +71,11 @@ async def create_chain_sync_client(
             """
             if isinstance(response.result, RollBackwardResult):
                 message_handlers.roll_backward(
-                    response.result.RollBackward, lambda: request_next(websocket_app)
+                    response.result.roll_backward, lambda: request_next(websocket_app)
                 )
             elif isinstance(response.result, RollForwardResult):
                 message_handlers.roll_forward(
-                    response.result.RollForward, lambda: request_next(websocket_app)
+                    response.result.roll_forward, lambda: request_next(websocket_app)
                 )
             else:
                 raise UnknownResultError(response.result)
@@ -100,10 +100,10 @@ async def create_chain_sync_client(
             :param _:
             :param message:
             """
-            response = Response.parse_raw(message)
+            response = Response.model_validate_json(message)
             if response.methodname is MethodName.REQUEST_NEXT:
                 try:
-                    response_handler(RequestNextResponse.parse_raw(message))
+                    response_handler(RequestNextResponse.model_validate_json(message))
                 except Exception as err:
                     print(err)
             elif response.methodname is MethodName.FIND_INTERSECT:

@@ -17,10 +17,10 @@ class ConnectionConfig(BaseModel):
     Connection configuration model class
     """
 
-    host: Optional[str]
-    port: Optional[int]
-    tls: Optional[bool]
-    max_payload: Optional[int]
+    host: Optional[str] = None
+    port: Optional[int] = None
+    tls: Optional[bool] = None
+    max_payload: Optional[int] = None
 
 
 class Address(BaseModel):
@@ -28,8 +28,8 @@ class Address(BaseModel):
     Address model class
     """
 
-    http: Optional[str]
-    webSocket: Optional[str]
+    http: Optional[str] = None
+    webSocket: Optional[str] = None
 
 
 class Connection(ConnectionConfig):
@@ -57,10 +57,10 @@ async def get_server_health(options: Options) -> ServerHealth | RequestError:
     """
     url = f"{options.connection.address.http}/health"
     async with aiohttp.ClientSession() as session:
-        response = await session.get(url=url)
-        if response.status == 200:
-            server_health = ServerHealth(**await response.json())
-        else:
-            raise RequestError(f"Error: {response.status}")
+        async with session.get(url=url) as response:
+            if response.status == 200:
+                server_health = ServerHealth(**await response.json())
+            else:
+                raise RequestError(response=response)
 
     return server_health

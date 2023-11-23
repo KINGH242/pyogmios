@@ -19,4 +19,4 @@ def request_next(socket: WebSocketApp, options: Options = None) -> None:
     :param options: The options
     """
     request = RequestNext.from_base(mirror=options.mirror if options else None)
-    socket.send(request.json())
+    socket.send(request.model_dump_json())

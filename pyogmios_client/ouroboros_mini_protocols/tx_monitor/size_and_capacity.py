@@ -22,7 +22,7 @@ async def size_and_capacity(context: InteractionContext, args: Dict) -> str:
     )
     try:
         websocket = context.socket
-        websocket.send(request.json())
+        websocket.send(request.model_dump_json())
         result = websocket.sock.recv()
         release_response = SizeAndCapacityResponse(**json.loads(result))
         return handle_size_and_capacity_response(release_response)

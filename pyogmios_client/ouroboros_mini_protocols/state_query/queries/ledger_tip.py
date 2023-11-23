@@ -5,25 +5,12 @@ from pyogmios_client.exceptions import (
     EraMismatchError,
     UnknownResultError,
 )
-from pyogmios_client.models import Origin, PointOrOrigin, Point
+from pyogmios_client.models import PointOrOrigin, EraMismatch
 from pyogmios_client.models.response_model import LedgerTipResponse
-from pyogmios_client.models.result_models import EraMismatchResult
 from pyogmios_client.ouroboros_mini_protocols.state_query.query import (
     query,
     RequestArgs,
 )
-
-
-def is_non_origin_point(response: LedgerTipResponse) -> bool:
-    """
-    Check if the response is a non-origin point.
-    :param response: The response to check.
-    :return: True if the response is a non-origin point, False otherwise.
-    """
-    result = response.result
-    if isinstance(result, Point):
-        return result.slot is not None and result.hash is not None
-    return False
 
 
 async def ledger_tip(context: InteractionContext) -> PointOrOrigin:
@@ -38,19 +25,14 @@ async def ledger_tip(context: InteractionContext) -> PointOrOrigin:
 
     try:
         response = await query(request_args, context)
-        query_response = LedgerTipResponse(**response.dict())
+        query_response = LedgerTipResponse(**response.model_dump())
         result = query_response.result
-        if result == "QueryUnavailableInCurrentEra":
+        if hasattr(result, "root") and result.root == "QueryUnavailableInCurrentEra":
             raise QueryUnavailableInCurrentEraError("ledgerTip")
-        elif isinstance(result, Origin):
+        elif isinstance(result, PointOrOrigin):
             return result
-        elif isinstance(result, EraMismatchResult):
-            era_mismatch = result.eraMismatch
-            raise EraMismatchError(
-                str(era_mismatch.queryEra), str(era_mismatch.ledgerEra)
-            )
-        elif is_non_origin_point(query_response):
-            return query_response.result
+        elif isinstance(result, EraMismatch):
+            raise EraMismatchError(result.queryEra.value, result.ledgerEra.value)
         else:
             raise UnknownResultError(response)
     except Exception as error:

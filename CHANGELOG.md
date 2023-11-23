@@ -1,3 +1,9 @@
+## 0.7.4 (2023-11-22)
+
+### Refactor
+
+- update and migrate to Pydantic V2
+
 ## 0.7.3 (2023-07-12)
 
 ### Fix

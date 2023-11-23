@@ -23,8 +23,8 @@ async def main():
     interaction_context = await create_interaction_context(
         options=interaction_context_options
     )
-    await asyncio.sleep(1)
-    print(interaction_context.socket.sock.connected)
+    # await asyncio.sleep(1)
+    # print(interaction_context.socket.sock.connected)
 
     def roll_backward_callback(
         roll_backward: RollBackward, callback: Callable[[], None]
@@ -55,8 +55,8 @@ async def main():
     )
     print("start sync")
     await chain_sync_client.start_sync([Origin.origin], 0)
-    print("sync started....sleeping for 5 seconds")
-    await asyncio.sleep(5)
+    print("sync started....sleeping for 20 seconds")
+    await asyncio.sleep(20)
     print("shutting down")
     await chain_sync_client.shutdown()
 

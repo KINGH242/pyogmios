@@ -22,6 +22,7 @@ async def main():
     )
     client = await create_state_query_client(interaction_context)
     chain_tip = await client.chain_tip()
+
     # await client.shutdown()
     print(chain_tip)
 

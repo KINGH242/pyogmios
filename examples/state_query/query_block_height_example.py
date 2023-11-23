@@ -22,8 +22,8 @@ async def main():
     )
     client = await create_state_query_client(interaction_context)
     bh = await client.block_height()
-    # await client.shutdown()
-    print(bh)
+    await client.shutdown()
+    print(f"Block height: {bh.root.root}")
 
 
 if __name__ == "__main__":
